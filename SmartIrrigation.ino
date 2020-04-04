@@ -1,5 +1,4 @@
 String header = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n";
-String header2 = "HTTP/1.1 200 OK\r\nContent-Type: text/css\r\n\r\n";
 
 #include <NTPClient.h>
 //#include <ESP8266WiFi.h>
@@ -18,7 +17,10 @@ String request = "";
 String requestTime = "";
 int LED_Pin = D1;
 
-bool valveOn[5]; 
+//set both to the same value:
+int valveCount = 5;
+bool valveOn[5];
+
 int timerValveNum = 5;
 
 int tabLength = 10;
@@ -104,7 +106,7 @@ void loop()
 
     CheckTimers();
   // The client will actually be disconnected when the function returns and 'client' object is detroyed
-    for (int i =0; i <= sizeof(valveOn); i++){
+    for (int i =1; i <= valveCount; i++){
       if (valveOn[i] && (millis() - starttime) >= DELAY_TIME) {
           valveOn[i] = false; 
           Serial.print("Timer ended");
@@ -139,7 +141,7 @@ void loop()
              }
     else if  ( request.indexOf("VALVEOFF") > 0 ) 
              { 
-                for (int i =0; i <= sizeof(valveOn); i++){
+                for (int i =1; i <= valveCount; i++){
                    valveOn[i] = false;
                 }
                 client.print( header );
@@ -151,24 +153,18 @@ void loop()
                 client.print( header );
                 client.print( "SUCCESS"); 
              }
-   else if  ( request.indexOf("GETCSS") > 0 ) 
+   else if  ( request.indexOf("UPDATE") > 0 ) 
              { 
-              client.print( header2 );
-                //int strStart = request.indexOf("-")+1;
-                //int strEnd = request.indexOf("!THEEND!")-1;
-                //String fileName ="/";
-                //for (int i = strStart; i <= strEnd;i++ ) {
-                 // fileName += request.charAt(i);
-                //}
-                String fn = runspiffs("css");
-                Serial.println("File Name: " + fn);
-                File f;
-                f = SPIFFS.open(fn, "r");                
-                String cssContent =  f.readString();
-                cssContent.replace ("\n", "");
-                Serial.println("File content: " + cssContent);   
-                client.print(cssContent); 
-                f.close();
+              client.print( header );
+              Serial.println("sizeof valve: " + String(valveCount));
+              for (int i =1; i <= valveCount; i++){
+                if(valveOn[i] == true) {
+                   client.print("Valve " + String(i) + " open now"); 
+                   return;
+                }
+              }
+              client.print("ValvesClosed"); 
+
              }
      else if  ( request.indexOf("TIME") > 0 ) 
              { 
@@ -261,7 +257,7 @@ void StartTimer(int t, int valve) {
     Serial.println ("Timer Started");
     starttime = millis();
     valveOn[valve] = true;
-    DELAY_TIME = t;
+    DELAY_TIME = t * 1000;
     AddEntry (startHistoryAtPosition);
 }
 
@@ -297,7 +293,7 @@ String getFileString(String fileName) {
   }
 }
 void CheckValves(){
-  for (int i =0; i <= sizeof(valveOn); i++){
+  for (int i =1; i <= valveCount; i++){
      if (valveOn[i]){
         SetValve(i, true);
      }

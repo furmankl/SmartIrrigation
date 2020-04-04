@@ -26,7 +26,7 @@
 
 </style>
 
- <link rel="stylesheet" href="http://www.bootstrapdash.com/demo/purple-admin-free/assets/css/style.css">
+ <link rel="stylesheet" href="https://raw.githack.com/furmankl/SmartIrrigation/develop/css/style.css">
   
  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.css" integrity="" crossorigin="anonymous">
 
@@ -39,8 +39,9 @@
 <script>
 
   function startEverything() {
-    LoadCss("style.css");
+    //LoadCss("style.css");
   }
+
 
     function startValve() 
   {
@@ -71,12 +72,41 @@
     }
 
 
-
+var oldValveMessage = "";
 var ajaxRequest = null;
 if (window.XMLHttpRequest)  { ajaxRequest =new XMLHttpRequest(); }
 else                        { ajaxRequest =new ActiveXObject("Microsoft.XMLHTTP"); }
  
  
+window.setInterval(function(){
+Update();
+}, 1000);
+
+function Update()
+{
+  if(!ajaxRequest){ alert("AJAX is not supported."); return; }
+  
+  ajaxRequest.open("GET","UPDATE");
+  ajaxRequest.onreadystatechange = function()
+  {
+    if(ajaxRequest.readyState == 4 && ajaxRequest.status==200)
+    {
+      var ajaxResult = ajaxRequest.responseText;
+      if (ajaxResult != oldValveMessage) {
+        if (ajaxResult.includes("open")){
+        document.getElementById("valveOpen").style.display = "flex";
+        document.getElementById("ValveMessage").innerHTML = ajaxResult;
+      }
+      else if (ajaxResult.includes("ValvesClosed"))
+        document.getElementById("valveOpen").style.display = "none";
+        oldValveMessage = ajaxResult;
+      }
+      
+
+    }
+  };
+  ajaxRequest.send();
+}
 
  function LoadCss(fileName) {
     if(!ajaxRequest){ alert("AJAX is not supported."); return; }
@@ -163,6 +193,7 @@ function resetTimers()
   };
   ajaxRequest.send();
 }
+
 function deleteThisTimer(timerValues) {
   if(!ajaxRequest){ alert("AJAX is not supported."); return; }
   ajaxRequest.open("GET","DELETETIMR-" + timerValues);
@@ -232,7 +263,7 @@ function GetInitialData()
 
 
   </head>
-  <body onload="startEverything()">
+  <body onload="GetInitialData()">
     <div class="container-scroller">
       <!-- partial:partials/_navbar.html -->
       <nav class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
@@ -365,7 +396,7 @@ function GetInitialData()
               <div class="col-md-12 stretch-card grid-margin">
                 <div class="card bg-gradient-success card-img-holder text-white">
                   <div class="card-body">
-                    <h2 class="font-weight-normal mb-3">Valve <i id="ValveMessage"></i> Open Now <i class="mdi mdi-chart-line mdi-24px float-right"></i>
+                    <h2 class="font-weight-normal mb-3" id="ValveMessage">  <i class="mdi mdi-chart-line mdi-24px float-right"></i>
                     </h2>
                   </div>
                 </div>
