@@ -135,7 +135,7 @@ void loop()
                 n = String (request.charAt(nStart)).toInt();
                 
                 Serial.println ("Time set to: " + t + " at: " + n);
-                StartTimer ((t.toInt())*1000, n);  
+                StartTimer ((t.toInt()), n);  
                 client.print( header );
                 client.print( "VALVEISON" );
              }
