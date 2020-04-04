@@ -33,7 +33,7 @@
  <!-- End layout styles -->
   <link rel="icon" 
       type="image/png" 
-      href="https://www.iconsdb.com/icons/download/caribbean-blue/droplet-32.png">
+      href="https://dl2.macupdate.com/images/icons256/51075.png">
 
   
 <script>
@@ -62,13 +62,13 @@
     {
      var time_value = document.getElementById("TIME_value1").value;
    var time_duration = document.getElementById("TIME_duration1").value;
-     
+        var time_ValveNum = document.getElementById("TIME_valveNum").value;
      //if (time_value == "00:00") {
       //alert("The system doesnt allow setting timer to 00:00!");
       //return; 
      //}
-       document.getElementById("show_time").innerHTML = time_value;
-       ajaxSetTime(String(time_value).replace(":", ""), time_duration);
+       //document.getElementById("show_time").innerHTML = time_value;
+       ajaxSetTime(String(time_value).replace(":", ""), time_duration, time_ValveNum);
     }
 
 
@@ -108,41 +108,22 @@ function Update()
   ajaxRequest.send();
 }
 
- function LoadCss(fileName) {
-    if(!ajaxRequest){ alert("AJAX is not supported."); return; }
- 
-  ajaxRequest.open("GET","GETCSS-" + fileName + "!THEEND!",true);
+function setTimerActivated (TimerNumbers, isActivated, it) {
+  if(!ajaxRequest){ alert("AJAX is not supported."); return; }
+
+  ajaxRequest.open("GET","SETTIMRACTIVATED-" + String (TimerNumbers) + String (isActivated),true);
   ajaxRequest.onreadystatechange = function()
   {
     if(ajaxRequest.readyState == 4 && ajaxRequest.status==200)
     {
-      var ajaxResult = ajaxRequest.responseText;
-
-      //document.getElementById("newStyles").innerHTML = ajaxResult;
-      //document.getElementById("newStyles").setAttribute('href', ajaxResult); // change the style
-
-      // Your CSS as text
-      var styles = ajaxResult;
-      styles = styles.replace(/(\r\n|\n|\r)/gm, "");
-
-      var head = document.getElementsByTagName('head')[0];
-      var s = document.createElement('style');
-      s.setAttribute('type', 'text/css');
-      if (s.styleSheet) {   // IE
-          s.styleSheet.cssText = styles;
-      } else {                // the world
-          s.appendChild(document.createTextNode(styles));
-      }
-      head.appendChild(s);
-
-      GetInitialData();
-
-
+      if (isActivated) 
+        it.parentElement.style.textDecoration  = "none";
+      else  
+        it.parentElement.style.textDecoration  = "line-through";
     }
   };
   ajaxRequest.send();
 }
-
 
 function ajaxLoad(ajaxURL)
 {
@@ -162,10 +143,10 @@ function ajaxLoad(ajaxURL)
   ajaxRequest.send();
 }
 
-function ajaxSetTime(timevalue, duration)
+function ajaxSetTime(timevalue, duration, valveNum)
 {
   if(!ajaxRequest){ alert("AJAX is not supported."); return; }
-  ajaxRequest.open("GET","TIME-" + String (timevalue) + "FOR" + String (duration) + "!",true);
+  ajaxRequest.open("GET","TIME-" + String (timevalue) + "FOR" + String (duration) + "!" + valveNum,true);
   ajaxRequest.onreadystatechange = function()
   {
     if(ajaxRequest.readyState == 4 && ajaxRequest.status==200)
@@ -181,7 +162,7 @@ function ajaxSetTime(timevalue, duration)
 function resetTimers()
 {
   if(!ajaxRequest){ alert("AJAX is not supported."); return; }
-  ajaxRequest.open("GET","RESETTIMERS");
+  ajaxRequest.open("GET","RESETTIMRS");
   ajaxRequest.onreadystatechange = function()
   {
     if(ajaxRequest.readyState == 4 && ajaxRequest.status==200)
@@ -221,7 +202,6 @@ function GetInitialData()
     {
       var ajaxResult = ajaxRequest.responseText;
       document.getElementById("show_output").innerHTML = ajaxResult;
-      document.getElementById("show_time").innerHTML = ajaxResult.charAt(0) + ajaxResult.charAt(1) + ":" + ajaxResult.charAt(2) + ajaxResult.charAt(3) ;
       var data = [];
     var data1 = [];
       var pos;
@@ -240,14 +220,21 @@ function GetInitialData()
         document.getElementById("historyTable").innerHTML = "";
         document.getElementById("TimerList").innerHTML = "";    
 
-        for (var v = 0; v < data.length ; v = v+6) {
+      for (var v = 0; v < data.length ; v = v+6) {
           //var newTable = "<tr><th>" + days[data[v]]; + "</th><th>" + data[v+1] + ":" + data[v+2] + ":" + data[v+3] +  "</th></tr>";  
-      var newTable = "<tr><td><img src='http://www.bootstrapdash.com/demo/purple-admin-free/assets/images/faces/face1.jpg' class='mr-2'>" + data[v] + ":" + data[v+1] + " - " + data[v+4] + ". " + data[v+3] + ". 20" + data[v+2] +" </td> <td>" + data[v+5] + "</td> <td> <label class='badge badge-gradient-info'>DONE</label></td></tr>";
+          var newTable = "<tr><td><img src='http://www.bootstrapdash.com/demo/purple-admin-free/assets/images/faces/face1.jpg' class='mr-2'>" + data[v] + ":" + data[v+1] + " - " + data[v+4] + ". " + data[v+3] + ". 20" + data[v+2] +" </td> <td>" + data[v+5] + "</td> <td> <label class='badge badge-gradient-info'>DONE</label></td></tr>";
       document.getElementById("historyTable").innerHTML += newTable;        
         }
-    for (var w = 0; w < data1.length ; w = w+5) {
-      var IDNumber = data1[w] + "" + data1[w+1] + "" + data1[w+2] + "" + data1[w+3] + "" + data1[w+4];
-        var listItem = "<li><div class='form-check'><label class='form-check-label'><input class='checkbox' type='checkbox'>" + data1[w] + ":" + data1[w+1] + " - " + Number(data1[w+2] + "" + data1[w+3]) + "s" + "</label></div><i class='remove mdi mdi-close-circle-outline' onclick='deleteThisTimer(\"" + IDNumber + "\")'></i></li>";
+      for (var w = 0; w < data1.length ; w = w+6) {
+        var stat = "";
+        var sty = "";
+        if (parseInt(data1[w+5]) > 0 ) 
+          stat = "checked='checked'";
+        else
+          sty= "text-decoration: line-through;"
+
+        var IDNumber = data1[w] + "" + data1[w+1] + "" + data1[w+2] + "" + data1[w+3] + "" + data1[w+4];
+        var listItem = "<li><div class='form-check'><label class='' style='margin-bottom: 0 !important;" + sty + "'><input class='checkbox' type='checkbox'" + stat +  "onclick='setTimerActivated(\"" + IDNumber + "\", this.checked, this)' >" + data1[w] + ":" + data1[w+1] + " - " + Number(data1[w+2]) + "" + Number(data1[w+3]) + "s - " +  Number(data1[w+4])  + "</label></div><i class='remove mdi mdi-close-circle-outline' onclick='deleteThisTimer(\"" + IDNumber + "\")'></i></li>";
 
          document.getElementById("TimerList").innerHTML += listItem;    
       
@@ -268,7 +255,8 @@ function GetInitialData()
       <!-- partial:partials/_navbar.html -->
       <nav class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
         <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
-        <img src="https://www.iconsdb.com/icons/download/caribbean-blue/droplet-32.png" alt="image">
+        <img src="https://dl2.macupdate.com/images/icons256/51075.png" alt="image" height="40px">
+        &nbsp;  <b>SIrrigation</b>
 
     </div>
         <div class="navbar-menu-wrapper d-flex align-items-stretch">
@@ -392,11 +380,11 @@ function GetInitialData()
         </div><!-- /input-group -->
             </span>
       
-      <div class="row" id="valveOpen">
+      <div class="row" id="valveOpen" style="display: none;">
               <div class="col-md-12 stretch-card grid-margin">
                 <div class="card bg-gradient-success card-img-holder text-white">
                   <div class="card-body">
-                    <h2 class="font-weight-normal mb-3" id="ValveMessage">  <i class="mdi mdi-chart-line mdi-24px float-right"></i>
+                    <h2 class="font-weight-normal mb-3"><div  id="ValveMessage"> </div>  <i class="mdi mdi-chart-line mdi-24px float-right"></i>
                     </h2>
                   </div>
                 </div>
@@ -472,7 +460,6 @@ function GetInitialData()
           <footer class="footer">
             <div class="d-sm-flex justify-content-center justify-content-sm-between">
               <span class="text-muted text-center text-sm-right d-block d-sm-inline-block">Template by <a href="https://www.bootstrapdash.com/" target="_blank">BootstrapDash</a>. </span>
-        <span class="text-muted text-center text-sm-right d-block d-sm-inline-block" id="show_time">Template by</span>
 
             </div>
           </footer>

@@ -19,7 +19,7 @@ int LED_Pin = D1;
 
 //set both to the same value:
 int valveCount = 5;
-bool valveOn[5];
+bool valveOn[6];
 
 int timerValveNum = 5;
 
@@ -57,7 +57,7 @@ void setup()
  
     while (WiFi.status() != WL_CONNECTED) {
         Serial.print(".");
-        delay(200);
+        delay(500);
     }
  
     Serial.println("");
@@ -84,7 +84,7 @@ void setup()
     
     Serial.println ("Time now: " + GetTimestamp(1) + ":" + GetDatestamp(2));
      
-  for (int i = startTimersAtPosition; i <startTimersAtPosition + 50; i++){
+  for (int i = startTimersAtPosition; i <startTimersAtPosition + 60; i++){
      if (EEPROM.read(i) > 0){}
      else {
       break;
@@ -120,7 +120,11 @@ void loop()
     // Read the first line of the request
     request = client.readStringUntil('\r');
  
-    Serial.print("request: "); Serial.println(request); 
+    if (request.indexOf("UPDATE") > 0) {}
+    else {
+      Serial.print("request: "); 
+      Serial.println(request); 
+    }
  
     if       ( request.indexOf("VALVEON") > 0 )  
              { 
@@ -147,7 +151,7 @@ void loop()
                 client.print( header );
                 client.print( "VALVEISOFF"); 
              }
-    else if  ( request.indexOf("RESETTIMERS") > 0 ) 
+    else if  ( request.indexOf("RESETTIMRS") > 0 ) 
              { 
                 RemoveAllTimers();
                 client.print( header );
@@ -156,7 +160,7 @@ void loop()
    else if  ( request.indexOf("UPDATE") > 0 ) 
              { 
               client.print( header );
-              Serial.println("sizeof valve: " + String(valveCount));
+              //Serial.println("sizeof valve: " + String(valveCount));
               for (int i =1; i <= valveCount; i++){
                 if(valveOn[i] == true) {
                    client.print("Valve " + String(i) + " open now"); 
@@ -164,11 +168,9 @@ void loop()
                 }
               }
               client.print("ValvesClosed"); 
-
              }
      else if  ( request.indexOf("TIME") > 0 ) 
              { 
-                digitalWrite(LED_Pin, LOW);   
                 client.print( header );
                 int ho = String (  String (request.charAt(request.indexOf("-")+1)) + String (request.charAt(request.indexOf("-")+2)) ).toInt();
                 int mi = String (  String (request.charAt(request.indexOf("-")+3)) + String (request.charAt(request.indexOf("-")+4)) ).toInt();
@@ -179,13 +181,14 @@ void loop()
                   dur += request.charAt(i);
                 }
                 int du = dur.toInt();
-                SetTime(ho, mi, du);
+                String valv = String(request.charAt(durEnd+2));
+                int v = valv.toInt();
+                SetTime(ho, mi, du, v);
                 client.print( "SUCCESS" ); 
                 Serial.println("I was at TIME " + PutPrefix(mi) + ":" + PutPrefix(ho) + "-" + String(du) );
              }
       else if  ( request.indexOf("DELETETIMR") > 0 ) 
              { 
-                digitalWrite(LED_Pin, LOW);   
                 client.print( header );
                 int pos = request.indexOf("-")+1;
                 String s = "";
@@ -194,7 +197,7 @@ void loop()
                 }
                 //Serial.println("String is" + s);
                 
-                for (int i = startTimersAtPosition; i < startTimersAtPosition + 50; i = i + 5) {
+                for (int i = startTimersAtPosition; i < startTimersAtPosition + 60; i = i + 6) {
                   String seeprom = PutPrefix(EEPROM.read(i)) +  PutPrefix(EEPROM.read(i+1)) + PutPrefix(EEPROM.read(i+2)) + PutPrefix(EEPROM.read(i+3)) + PutPrefix(EEPROM.read(i+4));
                   if (seeprom== s ){
                     Serial.println( "Timer Removed :" + s);
@@ -202,13 +205,48 @@ void loop()
                     break;
                   }
                 }
-                client.println("SUCCESS" );
+                client.println("SUCCESS");
+             }
+       else if  ( request.indexOf("SETTIMRACTIVATED") > 0 ) 
+             { 
+                client.print( header );
+                int pos = request.indexOf("-")+1;
+                String s = "";
+                for (int i = pos; i < pos+10; i++) {
+                   s += request.charAt (i);
+                }
+                bool b;
+                String boo = String (request.charAt(pos+10));
+                if (boo == "f") {
+                  b = false;}
+                else if (boo == "t") {
+                  b = true;}
+
+                //Serial.println("String is" + s);
+                
+                for (int i = startTimersAtPosition; i < startTimersAtPosition + 60; i = i + 6) {
+                  String seeprom = PutPrefix(EEPROM.read(i)) +  PutPrefix(EEPROM.read(i+1)) + PutPrefix(EEPROM.read(i+2)) + PutPrefix(EEPROM.read(i+3)) + PutPrefix(EEPROM.read(i+4));
+                  if (s  ==  seeprom ){
+                    if (b) {
+                       EEPROM.write(i+5, 1);
+                       client.println("SUCCESS");
+                       Serial.println("Timer activated");
+                       break;
+                       }
+                    else {
+                       EEPROM.write(i+5, 0);
+                       client.println("SUCCESS");
+                       Serial.println("Timer deactivated");                       
+                       break;
+                    }
+                  }
+                }
+                EEPROM.commit();
              }
     else if  ( request.indexOf("INIT") > 0 ) 
              { 
-                digitalWrite(LED_Pin, LOW);   
                 client.print( header );
-                String response = "";
+                String response = "+";
                 for (int i = startHistoryAtPosition; i < startHistoryAtPosition + (tabLength * 6); i++) {
                   if (EEPROM.read(i) < 10) {
                     response += "0";
@@ -220,23 +258,17 @@ void loop()
                   response += " ";
                 }
                 response += "-";
-                for (int i = startTimersAtPosition; i < startTimersAtPosition + 50; i = i + 5) {
+                for (int i = startTimersAtPosition; i < startTimersAtPosition + 60; i = i + 6) {
                   String r = "";
-                  if (EEPROM.read(i+4) != 0){                
-                    for (int j = 0; j < 5; j++) {
-                      if (EEPROM.read(j+i) < 10) {
-                        r += "0";
-                        r += String ( EEPROM.read(j+i) );
-                      }
-                      else {
-                        r += String ( EEPROM.read(j+i) );
-                      }
-                        r += " ";
+                  if (EEPROM.read(i+3) != 0 || EEPROM.read(i+2) != 0){
+                    for (int j = 0; j < 6; j++) {
+                      r += PutPrefix(EEPROM.read(j+i));
+                      r += " ";
                     }
                   }
                   response += r;
                 }
-                response = ("+" + response);
+                response = (response);
                 client.print( response ); 
              }             
     else
@@ -262,14 +294,14 @@ void StartTimer(int t, int valve) {
 }
 
 void CheckTimers() {
-    for (int i = startTimersAtPosition; i < startTimersAtPosition + 50; i = i + 5) {
-      if (EEPROM.read (i+4) != 0) {
+    for (int i = startTimersAtPosition; i < startTimersAtPosition + 60; i = i + 6) {
+      if (EEPROM.read (i+6) != 0) {
         if (EEPROM.read (i) == timeClient.getHours() ) {
           if (EEPROM.read (i+1) == timeClient.getMinutes() ) {
             if (timeClient.getSeconds()  == 0) {
               if (!alreadyStarted) {
                   String d = String (EEPROM.read (i+2) ) + String (EEPROM.read (i+3) );
-                  StartTimer(d.toInt(), timerValveNum);
+                  StartTimer(d.toInt(), EEPROM.read (i+5));
                   alreadyStarted = true;
               }
             }  
@@ -392,6 +424,7 @@ String runspiffs(String typ) {
 
 }
 
+//add entry to history
 void AddEntry(int location) {
       timeClient.update();
 
@@ -408,7 +441,8 @@ void AddEntry(int location) {
     Serial.println ("New entry at location: " + String(location));
 }
 
-void SetTime(int hour, int minute, int duration) {
+//Set new timer
+void SetTime(int hour, int minute, int duration, int valve) {
   int dur1, dur2;
   if (duration < 100) {
      dur1=0;
@@ -418,32 +452,33 @@ void SetTime(int hour, int minute, int duration) {
     dur1 = duration / 100;
     dur2 = duration % 100;
   }
-  for (int i = startTimersAtPosition; i <startTimersAtPosition + 50; i= i + 5){
+  for (int i = startTimersAtPosition; i <startTimersAtPosition + 60; i= i + 6){
     if (EEPROM.read(i) == 0){      
       EEPROM.write(i, hour);
       EEPROM.write(i + 1, minute);
       EEPROM.write(i + 2, dur1);
       EEPROM.write(i + 3, dur2); 
-      EEPROM.write(i + 4, 1);  //is Timer active?
+      EEPROM.write(i + 4, valve);  //set valve valve
+      EEPROM.write(i + 5, 1);  //set timer active
       break;
     }
   }
   EEPROM.commit();
   
   Serial.println("print out timers");
-    for (int i = startTimersAtPosition; i <startTimersAtPosition + 50; i= i + 5){
-      for (int j = 0; j<4; j++)
+    for (int i = startTimersAtPosition; i <startTimersAtPosition + 60; i= i + 6){
+      for (int j = 0; j<6; j++)
         Serial.print (String (EEPROM.read(i+j)) + String (" "));
       Serial.println();
   }
 }
 void RemoveAllTimers() {
-  for (int i = startTimersAtPosition; i <startTimersAtPosition + 50; i++){
+  for (int i = startTimersAtPosition; i <startTimersAtPosition + 60; i++){
      EEPROM.write(i, 0);
   }
 }
 void RemoveTimer(int location) {
-  for (int i= location; i< location+5; i++) {
+  for (int i= location; i< location+6; i++) {
       EEPROM.write(i, 0);
   }
   EEPROM.commit();
