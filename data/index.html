@@ -1,0 +1,478 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Purple Admin</title>
+    <!-- plugins:css -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.0.45/css/materialdesignicons.min.css">
+<link rel="stylesheet" type="textcss" href="style.css">
+
+    <!-- endinject -->
+    <!-- Plugin css for this page -->
+    <!-- End plugin css for this page -->
+    <!-- inject:css -->
+    <!-- endinject -->
+    <!-- Layout styles -->
+  <style>
+@import url('https://fonts.googleapis.com/css?family=Ubuntu:300,400,500,700&display=swap');
+</style>
+
+<style type="text/css">
+
+/** == Add your CSS here == **/
+
+</style>
+
+ <link rel="stylesheet" href="http://www.bootstrapdash.com/demo/purple-admin-free/assets/css/style.css">
+  
+ <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.css" integrity="" crossorigin="anonymous">
+
+ <!-- End layout styles -->
+  <link rel="icon" 
+      type="image/png" 
+      href="https://www.iconsdb.com/icons/download/caribbean-blue/droplet-32.png">
+
+  
+<script>
+
+  function startEverything() {
+    LoadCss("style.css");
+  }
+
+    function startValve() 
+  {
+       var button_text = document.getElementById("StartValveButton").innerHTML;
+     if (button_text=="Start")
+     {
+       document.getElementById("StartValveButton").innerHTML = "Starting";
+       ajaxLoad('VALVEONd' + document.getElementById('manualDuration').value + 'm' + document.getElementById('valveNum').value); 
+     }
+     else
+     {
+       document.getElementById("StartValveButton").innerHTML = "Stopping";
+       ajaxLoad('VALVEOFF');
+     }
+    }
+        
+   function setTime() 
+    {
+     var time_value = document.getElementById("TIME_value1").value;
+   var time_duration = document.getElementById("TIME_duration1").value;
+     
+     //if (time_value == "00:00") {
+      //alert("The system doesnt allow setting timer to 00:00!");
+      //return; 
+     //}
+       document.getElementById("show_time").innerHTML = time_value;
+       ajaxSetTime(String(time_value).replace(":", ""), time_duration);
+    }
+
+
+
+var ajaxRequest = null;
+if (window.XMLHttpRequest)  { ajaxRequest =new XMLHttpRequest(); }
+else                        { ajaxRequest =new ActiveXObject("Microsoft.XMLHTTP"); }
+ 
+ 
+
+ function LoadCss(fileName) {
+    if(!ajaxRequest){ alert("AJAX is not supported."); return; }
+ 
+  ajaxRequest.open("GET","GETCSS-" + fileName + "!THEEND!",true);
+  ajaxRequest.onreadystatechange = function()
+  {
+    if(ajaxRequest.readyState == 4 && ajaxRequest.status==200)
+    {
+      var ajaxResult = ajaxRequest.responseText;
+
+      //document.getElementById("newStyles").innerHTML = ajaxResult;
+      //document.getElementById("newStyles").setAttribute('href', ajaxResult); // change the style
+
+      // Your CSS as text
+      var styles = ajaxResult;
+      styles = styles.replace(/(\r\n|\n|\r)/gm, "");
+
+      var head = document.getElementsByTagName('head')[0];
+      var s = document.createElement('style');
+      s.setAttribute('type', 'text/css');
+      if (s.styleSheet) {   // IE
+          s.styleSheet.cssText = styles;
+      } else {                // the world
+          s.appendChild(document.createTextNode(styles));
+      }
+      head.appendChild(s);
+
+      GetInitialData();
+
+
+    }
+  };
+  ajaxRequest.send();
+}
+
+
+function ajaxLoad(ajaxURL)
+{
+  if(!ajaxRequest){ alert("AJAX is not supported."); return; }
+ 
+  ajaxRequest.open("GET",ajaxURL,true);
+  ajaxRequest.onreadystatechange = function()
+  {
+    if(ajaxRequest.readyState == 4 && ajaxRequest.status==200)
+    {
+      var ajaxResult = ajaxRequest.responseText;
+      if      ( ajaxResult == "VALVEISON" )   { document.getElementById("StartValveButton").innerHTML = "Stop"; }
+      else if ( ajaxResult == "VALVEISOFF" )  { document.getElementById("StartValveButton").innerHTML = "Start"; }
+      document.getElementById("ValveMessage").innerHTML = ajaxResult;
+    }
+  };
+  ajaxRequest.send();
+}
+
+function ajaxSetTime(timevalue, duration)
+{
+  if(!ajaxRequest){ alert("AJAX is not supported."); return; }
+  ajaxRequest.open("GET","TIME-" + String (timevalue) + "FOR" + String (duration) + "!",true);
+  ajaxRequest.onreadystatechange = function()
+  {
+    if(ajaxRequest.readyState == 4 && ajaxRequest.status==200)
+    {
+      var ajaxResult = ajaxRequest.responseText;
+      if (ajaxResult == "SUCCESS")
+        GetInitialData();
+    }
+  };
+  ajaxRequest.send();
+}
+
+function resetTimers()
+{
+  if(!ajaxRequest){ alert("AJAX is not supported."); return; }
+  ajaxRequest.open("GET","RESETTIMERS");
+  ajaxRequest.onreadystatechange = function()
+  {
+    if(ajaxRequest.readyState == 4 && ajaxRequest.status==200)
+    {
+      var ajaxResult = ajaxRequest.responseText;
+      if (ajaxResult == "SUCCESS")
+        GetInitialData();
+    }
+  };
+  ajaxRequest.send();
+}
+function deleteThisTimer(timerValues) {
+  if(!ajaxRequest){ alert("AJAX is not supported."); return; }
+  ajaxRequest.open("GET","DELETETIMR-" + timerValues);
+  ajaxRequest.onreadystatechange = function()
+  {
+    if(ajaxRequest.readyState == 4 && ajaxRequest.status==200)
+    {
+      var ajaxResult = ajaxRequest.responseText;
+      if (ajaxResult == "SUCCESS")
+        GetInitialData();
+      //document.getElementById("show_time").innerHTML = ajaxResult;
+    }
+  };
+  ajaxRequest.send();
+}
+
+function GetInitialData()
+{
+  if(!ajaxRequest){ alert("AJAX is not supported."); return; }
+
+  ajaxRequest.open("GET","INIT");
+  ajaxRequest.onreadystatechange = function()
+  {
+    if(ajaxRequest.readyState == 4 && ajaxRequest.status==200)
+    {
+      var ajaxResult = ajaxRequest.responseText;
+      document.getElementById("show_output").innerHTML = ajaxResult;
+      document.getElementById("show_time").innerHTML = ajaxResult.charAt(0) + ajaxResult.charAt(1) + ":" + ajaxResult.charAt(2) + ajaxResult.charAt(3) ;
+      var data = [];
+    var data1 = [];
+      var pos;
+    var pos1;
+      if (ajaxResult.includes("+")){
+        pos = ajaxResult.indexOf("+");
+    pos1 = ajaxResult.indexOf("-");
+        for (var i = pos; i < (pos1 - 1); i = i + 3){
+          var newString = String ( ajaxResult.charAt(i + 1) ) + String (ajaxResult.charAt(i + 2));
+          data.push (newString); 
+        }
+        for (var j = pos1; j < (ajaxResult.length - 1); j = j + 3){
+          var newString1 = String ( ajaxResult.charAt(j + 1) ) + String (ajaxResult.charAt(j + 2));
+          data1.push (newString1); 
+        }
+        document.getElementById("historyTable").innerHTML = "";
+        document.getElementById("TimerList").innerHTML = "";    
+
+        for (var v = 0; v < data.length ; v = v+6) {
+          //var newTable = "<tr><th>" + days[data[v]]; + "</th><th>" + data[v+1] + ":" + data[v+2] + ":" + data[v+3] +  "</th></tr>";  
+      var newTable = "<tr><td><img src='http://www.bootstrapdash.com/demo/purple-admin-free/assets/images/faces/face1.jpg' class='mr-2'>" + data[v] + ":" + data[v+1] + " - " + data[v+4] + ". " + data[v+3] + ". 20" + data[v+2] +" </td> <td>" + data[v+5] + "</td> <td> <label class='badge badge-gradient-info'>DONE</label></td></tr>";
+      document.getElementById("historyTable").innerHTML += newTable;        
+        }
+    for (var w = 0; w < data1.length ; w = w+5) {
+      var IDNumber = data1[w] + "" + data1[w+1] + "" + data1[w+2] + "" + data1[w+3] + "" + data1[w+4];
+        var listItem = "<li><div class='form-check'><label class='form-check-label'><input class='checkbox' type='checkbox'>" + data1[w] + ":" + data1[w+1] + " - " + Number(data1[w+2] + "" + data1[w+3]) + "s" + "</label></div><i class='remove mdi mdi-close-circle-outline' onclick='deleteThisTimer(\"" + IDNumber + "\")'></i></li>";
+
+         document.getElementById("TimerList").innerHTML += listItem;    
+      
+    }
+      }
+    }
+  };
+  ajaxRequest.send();
+}   
+
+ 
+</script>
+
+
+  </head>
+  <body onload="startEverything()">
+    <div class="container-scroller">
+      <!-- partial:partials/_navbar.html -->
+      <nav class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+        <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
+        <img src="https://www.iconsdb.com/icons/download/caribbean-blue/droplet-32.png" alt="image">
+
+    </div>
+        <div class="navbar-menu-wrapper d-flex align-items-stretch">
+          <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
+            <span class="mdi mdi-menu"></span>
+          </button>
+
+          <ul class="navbar-nav navbar-nav-right">
+            <li class="nav-item nav-profile dropdown">
+              <div class="nav-link " id="profileDropdown" >
+                <div class="nav-profile-img">
+                  <img src="http://www.bootstrapdash.com/demo/purple-admin-free/assets/images/faces/face1.jpg" alt="image">
+                </div>
+                <div class="nav-profile-text">
+                  <p class="mb-1 text-black">David Greymaax</p>
+                </div>
+              </div>
+
+            </li>
+      
+            <li class="nav-item d-none d-lg-block full-screen-link">
+              <a class="nav-link">
+                <i class="mdi mdi-fullscreen" id="fullscreen-button"></i>
+              </a>
+            </li>
+
+            
+            <li class="nav-item nav-logout d-none d-lg-block">
+              <a class="nav-link" href="#">
+                <i class="mdi mdi-power"></i>
+              </a>
+            </li>
+
+      </ul>
+          <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button" data-toggle="offcanvas">
+            <span class="mdi mdi-menu"></span>
+          </button>
+        </div>
+      </nav>
+      <!-- partial -->
+      <div class="container-fluid page-body-wrapper">
+        <!-- partial:partials/_sidebar.html -->
+        <nav class="sidebar sidebar-offcanvas" id="sidebar">
+          <ul class="nav">
+            <li class="nav-item nav-profile">
+              <a href="#" class="nav-link">
+                <div class="nav-profile-image">
+                  <img src="http://www.bootstrapdash.com/demo/purple-admin-free/assets/images/faces/face1.jpg" alt="profile">
+                  <span class="login-status online"></span>
+                  <!--change to offline or busy as needed-->
+                </div>
+                <div class="nav-profile-text d-flex flex-column">
+                  <span class="font-weight-bold mb-2">David Grey. H</span>
+                  <span class="text-secondary text-small">Project Manager</span>
+                </div>
+                <i class="mdi mdi-bookmark-check text-success nav-profile-badge"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">
+                <span class="menu-title">Dashboard</span>
+                <i class="mdi mdi-home menu-icon"></i>
+              </a>
+            </li>
+            
+
+          </ul>
+        </nav>
+        <!-- partial -->
+        <div class="main-panel">
+          <div class="content-wrapper">
+            <div class="page-header" style=" display:none !important;" >
+              <h3 class="page-title">
+                <span class="page-title-icon bg-gradient-primary text-white mr-2">
+                  <i class="mdi mdi-home"></i>
+                </span> Dashboard </h3>
+         
+         <span class="d-flex align-items-left" style="visibility:hidden;">
+                  <i class="mdi mdi-close" id="bannerClose"></i>
+                </span>
+              <nav aria-label="breadcrumb">
+                <ul class="breadcrumb">
+                  <li class="breadcrumb-item active" aria-current="page">
+                    <span></span>Overview <i class="mdi mdi-alert-circle-outline icon-sm text-primary align-middle"></i>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+
+
+        
+
+        <span class="d-flex align-items-center purchase-popup">
+        <div class="input-group">
+        <label class="col-sm-3 col-form-label">Trigger manually</label>
+          <div class="col-sm-4">
+            <select class="form-control" id="manualDuration">
+                    <option value="5">5 s</option>
+                  <option value="30">30 s</option>
+                  <option value="60">1 min</option>
+                  <option value="90">1.5 min</option>
+                  <option value="120">2 min</option>
+                  <option value="180">3 min</option>
+                  <option value="240">4 min</option>
+                  <option value="300">5 min</option>
+                  <option value="480">8 min</option>
+                  <option value="600">10 min</option>
+                  </select>
+          </div>
+          <div class="col-sm-3">
+              <select class="form-control" id="valveNum">>
+                                <option value="1">Valve 1</option>
+                <option value="5">Valve 5</option>
+            </select>
+
+          </div>
+          <span class="input-group-btn col-sm-2">
+
+                      <button type="submit" class="btn btn-gradient-primary btn-block" id="StartValveButton" onclick="startValve()">Start</button>
+          </span>
+        </div><!-- /input-group -->
+            </span>
+      
+      <div class="row" id="valveOpen">
+              <div class="col-md-12 stretch-card grid-margin">
+                <div class="card bg-gradient-success card-img-holder text-white">
+                  <div class="card-body">
+                    <h2 class="font-weight-normal mb-3">Valve <i id="ValveMessage"></i> Open Now <i class="mdi mdi-chart-line mdi-24px float-right"></i>
+                    </h2>
+                  </div>
+                </div>
+              </div>
+
+      </div>
+
+      
+            <div class="row">       
+        <div class="col-md-6 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <h4 class="card-title">Timers</h4>
+                    <div class="add-items d-flex">
+                      <input type="time" style="margin-right: 0.5em" class="form-control todo-list-input" id ="TIME_value1">
+                      <input type="number" style="margin-right: 0.5em"class="form-control todo-list-input" placeholder="Seconds" id="TIME_duration1">
+                      <input type="number"  class="form-control todo-list-input" placeholder="Valve" id="TIME_valveNum">
+                      <button class="add btn btn-gradient-primary font-weight-bold todo-list-add-btn" id="add-task" onclick="setTime()" >Add</button>
+                    </div>
+
+                    <div class="list-wrapper" >
+                      <ul class="d-flex flex-column-reverse todo-list todo-list-custom" id="TimerList">
+                        <li>
+                          <div class="">
+                            <label class="form-check-label">
+                              <input class="checkbox" type="checkbox"> Meeting with Alisa </label>
+                          </div>
+                          <i class="remove mdi mdi-close-circle-outline"></i>
+                        </li>
+                        <li class="completed">
+                          <div class="">
+                            <label class="form-check-label">
+                              <input class="checkbox" type="checkbox" checked> Call John </label>
+                          </div>
+                          <i class="remove mdi mdi-close-circle-outline"></i>
+                        </li>
+                        
+                      </ul>
+                      <br />
+                      <button type="button" class="btn btn-dark btn-lg btn-block" oncick="resetTimers()">Reset Timers</button>                   
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+        <div class="col-6 grid-margin">
+                <div class="card">
+                  <div class="card-body">
+                    <h4 class="card-title">Recent waterings</h4>
+                    <div class="table-responsive">
+                      <table class="table">
+                        <thead>
+                          <tr>
+                            <th> Time </th>
+                            <th> Duration </th>
+                            <th> Status </th>
+                          </tr>
+                        </thead>
+                        <tbody id="historyTable">
+              
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+        
+            </div>
+
+          </div>
+          <!-- content-wrapper ends -->
+          <!-- partial:partials/_footer.html -->
+          <footer class="footer">
+            <div class="d-sm-flex justify-content-center justify-content-sm-between">
+              <span class="text-muted text-center text-sm-right d-block d-sm-inline-block">Template by <a href="https://www.bootstrapdash.com/" target="_blank">BootstrapDash</a>. </span>
+        <span class="text-muted text-center text-sm-right d-block d-sm-inline-block" id="show_time">Template by</span>
+
+            </div>
+          </footer>
+        <footer class="footer">
+            <div class="d-sm-flex justify-content-center justify-content-sm-between">
+        <span class="text-muted text-center text-sm-right d-block d-sm-inline-block" id="show_output">Template by</span>
+
+            </div>
+          </footer>
+
+          <!-- partial -->
+        </div>
+        <!-- main-panel ends -->
+      </div>
+      <!-- page-body-wrapper ends -->
+    </div>
+    <!-- container-scroller -->
+    <!-- plugins:js -->
+    <script src="http://www.bootstrapdash.com/demo/purple-admin-free/assets/vendors/js/vendor.bundle.base.js"></script>
+    <!-- endinject -->
+    <!-- Plugin js for this page -->
+    <script src="http://www.bootstrapdash.com/demo/purple-admin-free/assets/vendors/chart.js/Chart.min.js"></script>
+    <!-- End plugin js for this page -->
+    <!-- inject:js -->
+   <script src="http://www.bootstrapdash.com/demo/purple-admin-free/assets/js/off-canvas.js"></script>
+    <script src="http://www.bootstrapdash.com/demo/purple-admin-free/assets/js/hoverable-collapse.js"></script>
+    <script src="http://www.bootstrapdash.com/demo/purple-admin-free/assets/js/misc.js"></script>
+    <!-- endinject -->
+    <!-- Custom js for this page -->
+    <script src="http://www.bootstrapdash.com/demo/purple-admin-free/assets/js/dashboard.js"></script>
+    <script src="http://www.bootstrapdash.com/demo/purple-admin-free/assets/js/todolist.js"></script>
+    <!-- End custom js for this page -->
+  </body>
+</html>
