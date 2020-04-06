@@ -7,10 +7,11 @@ String header = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n";
 #include <ESP8266WebServer.h>
 #include <FS.h>
 
-// change these values to match your network
-char ssid[] = "VitaKlemen";       //  your network SSID (name)
-char pass[] = "rjavikujn25";      //  your network password
- 
+#include "credentials.h"
+
+const char ssid[] = WIFI_SSID;
+const char pass[] = WIFI_PASSWD;
+
 WiFiServer server(80);
  
 String request = "";
@@ -19,7 +20,7 @@ int LED_Pin = D1;
 
 //set both to the same value:
 int valveCount = 5;
-bool valveOn[6];
+bool valveOn[5];
 
 int timerValveNum = 5;
 
@@ -43,6 +44,9 @@ NTPClient timeClient(ntpUDP);
 int starttime;
 unsigned long DELAY_TIME;
 bool alreadyStarted = false;
+
+// HTML files
+String currentHtmlFile = "settings.html";
 
 void setup() 
 {
@@ -90,8 +94,6 @@ void setup()
       break;
      }
   }
-
- 
 
   //RemoveAllTimers();
 } // void setup()
@@ -150,6 +152,33 @@ void loop()
                 }
                 client.print( header );
                 client.print( "VALVEISOFF"); 
+             }
+     else if  ( request.indexOf("RESETHISTORY") > 0 ) 
+             { 
+                AddSampleEntries();
+                client.print( header );
+                client.print( "SUCCESS"); 
+             }
+     else if  ( request.indexOf("SETHTMLFILE") > 0 ) 
+             { 
+                int durStart = request.indexOf("-")+1;
+                int durEnd = request.indexOf("html")+3;
+                String file = "";
+                for (int i= durStart; i <= durEnd; i++) {
+                  file += request.charAt(i);
+                }
+                currentHtmlFile = file;
+
+                client.flush();
+                client.print( header );
+                Serial.println("Set Html to: " + runspiffs(currentHtmlFile));
+                File f = SPIFFS.open(runspiffs(currentHtmlFile), "r");
+                String content = f.readString();
+                f.close();
+                client.print(content);    
+                delay(5);
+                client.print( header );
+                client.print( "SUCCESS"); 
              }
     else if  ( request.indexOf("RESETTIMRS") > 0 ) 
              { 
@@ -247,7 +276,7 @@ void loop()
              { 
                 client.print( header );
                 String response = "+";
-                for (int i = startHistoryAtPosition; i < startHistoryAtPosition + (tabLength * 6); i++) {
+                for (int i = startHistoryAtPosition; i < startHistoryAtPosition + (tabLength * 7); i++) {
                   if (EEPROM.read(i) < 10) {
                     response += "0";
                     response += String ( EEPROM.read(i) );
@@ -275,8 +304,8 @@ void loop()
     {
         client.flush();
         client.print( header );
-        Serial.println("At else: " + runspiffs("html"));
-        File f = SPIFFS.open(runspiffs("html"), "r");
+        Serial.println("At else: " + runspiffs("index.html"));
+        File f = SPIFFS.open(runspiffs("index.html"), "r");
         String content = f.readString();
         f.close();
         client.print(content);    
@@ -290,18 +319,18 @@ void StartTimer(int t, int valve) {
     starttime = millis();
     valveOn[valve] = true;
     DELAY_TIME = t * 1000;
-    AddEntry (startHistoryAtPosition);
+    AddEntry (startHistoryAtPosition, t, valve);
 }
 
 void CheckTimers() {
     for (int i = startTimersAtPosition; i < startTimersAtPosition + 60; i = i + 6) {
-      if (EEPROM.read (i+6) != 0) {
+      if (EEPROM.read (i+5) != 0) {
         if (EEPROM.read (i) == timeClient.getHours() ) {
           if (EEPROM.read (i+1) == timeClient.getMinutes() ) {
             if (timeClient.getSeconds()  == 0) {
               if (!alreadyStarted) {
                   String d = String (EEPROM.read (i+2) ) + String (EEPROM.read (i+3) );
-                  StartTimer(d.toInt(), EEPROM.read (i+5));
+                  StartTimer(d.toInt(), EEPROM.read (i+4));
                   alreadyStarted = true;
               }
             }  
@@ -324,6 +353,7 @@ String getFileString(String fileName) {
       return stylecss.readString();
   }
 }
+
 void CheckValves(){
   for (int i =1; i <= valveCount; i++){
      if (valveOn[i]){
@@ -334,9 +364,10 @@ void CheckValves(){
      }
   }
 }
+
 void AddSampleEntries() {
-  for (int i = startHistoryAtPosition; i < startHistoryAtPosition + (tabLength*6); i = i+6) {
-   AddEntry(i);
+  for (int i = startHistoryAtPosition; i < startHistoryAtPosition + (tabLength*7); i = i+7) {
+   AddEntry(i, 5, 5);
   } 
 }
 
@@ -350,7 +381,6 @@ void SetValve (int valveNum, bool state) {
     valveOn[valveNum] = true;
   }
 }
-
 
 //int i 1 for hour, 2 for minute,
 String GetTimestamp(int mod) {
@@ -368,6 +398,7 @@ String GetTimestamp(int mod) {
   }
   return (timeStamp);
 }
+
 //int i 1 for 20year, 2 for month, 3 for day 
 String GetDatestamp(int mod) {
   formattedDate = timeClient.getFormattedDate();
@@ -391,7 +422,7 @@ String GetDatestamp(int mod) {
    return (dayStamp);
 }
 
-String runspiffs(String typ) {
+String runspiffs(String Fname) {
  
     // To format all space in SPIFFS
     //SPIFFS.format();
@@ -413,10 +444,7 @@ String runspiffs(String typ) {
             Serial.println("0 bytes");
         }
       
-          if(dir.fileName().indexOf("css") > 0 && typ == "css"){
-          return dir.fileName();
-        }
-        else if(dir.fileName().indexOf("html") > 0 && typ == "html"){
+        if(dir.fileName().indexOf(Fname) > 0){
           return dir.fileName();
         }
 
@@ -425,18 +453,25 @@ String runspiffs(String typ) {
 }
 
 //add entry to history
-void AddEntry(int location) {
-      timeClient.update();
-
+void AddEntry(int location, int duration, int valve) {
+    timeClient.update();
+  int duration_limited;
+  if (duration < 99)
+    duration_limited = duration;
+  else
+    duration_limited = 99;
+    
   if (EEPROM.read(location) > 0){
     MoveEntries();
+    Serial.println("Move entries");
   }
     EEPROM.write((location), GetTimestamp(1).toInt()); // hour
     EEPROM.write((location)+1, GetTimestamp(2).toInt());  // minute
     EEPROM.write((location)+2, GetDatestamp(1).toInt());  // 20year
     EEPROM.write((location)+3, GetDatestamp(2).toInt());  // month
     EEPROM.write((location)+4, GetDatestamp(3).toInt());  // day
-    EEPROM.write((location)+5, 2);  // date
+    EEPROM.write((location)+5, valve);  // valve
+    EEPROM.write((location)+6, duration_limited);  // duration
     EEPROM.commit();
     Serial.println ("New entry at location: " + String(location));
 }
@@ -472,11 +507,13 @@ void SetTime(int hour, int minute, int duration, int valve) {
       Serial.println();
   }
 }
+
 void RemoveAllTimers() {
   for (int i = startTimersAtPosition; i <startTimersAtPosition + 60; i++){
      EEPROM.write(i, 0);
   }
 }
+
 void RemoveTimer(int location) {
   for (int i= location; i< location+6; i++) {
       EEPROM.write(i, 0);
@@ -485,9 +522,9 @@ void RemoveTimer(int location) {
 }
 
 void MoveEntries() {
-  for (int h = startHistoryAtPosition; h <= tabLength + startHistoryAtPosition; h= h + 6) {
-    for (int g = 1; g <=6; g++){
-      EEPROM.write(h+6+g, EEPROM.read( h+g ));
+  for (int h = startHistoryAtPosition + tabLength - 1; h >= startHistoryAtPosition; h = h - 7) {
+    for (int g = 0; g < 7; g++){
+      EEPROM.write(h+g, EEPROM.read( h+g-7 ));
     }
     EEPROM.commit();
     }

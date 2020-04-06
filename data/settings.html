@@ -58,18 +58,6 @@ function startValve()
      }
     }
         
- function setTime() 
-    {
-     var time_value = document.getElementById("TIME_value1").value;
-   var time_duration = document.getElementById("TIME_duration1").value;
-        var time_ValveNum = document.getElementById("TIME_valveNum").value;
-     //if (time_value == "00:00") {
-      //alert("The system doesnt allow setting timer to 00:00!");
-      //return; 
-     //}
-       //document.getElementById("show_time").innerHTML = time_value;
-       ajaxSetTime(String(time_value).replace(":", ""), time_duration, time_ValveNum);
-    }
 
 
 var oldValveMessage = "";
@@ -79,7 +67,7 @@ else                        { ajaxRequest =new ActiveXObject("Microsoft.XMLHTTP"
  
  
 window.setInterval(function(){
-Update();
+//Update();
 }, 1000);
 
 function Update()
@@ -96,11 +84,9 @@ function Update()
         if (ajaxResult.includes("open")){
         document.getElementById("valveOpen").style.display = "flex";
         document.getElementById("ValveMessage").innerHTML = ajaxResult;
-        document.getElementById("StartValveButton").innerHTML = "Stop";
       }
       else if (ajaxResult.includes("ValvesClosed"))
         document.getElementById("valveOpen").style.display = "none";
-        document.getElementById("StartValveButton").innerHTML = "Start";
         oldValveMessage = ajaxResult;
       }
       
@@ -113,66 +99,12 @@ function Update()
 function setHtmlFile (fileName) {
   if(!ajaxRequest){ alert("AJAX is not supported."); return; }
 
-  ajaxRequest.open("GET","SETHTMLFILE-" + String (fileName),true);
+  ajaxRequest.open("GET","SETTIMRACTIVATED-" + String (fileName),true);
   ajaxRequest.onreadystatechange = function()
   {
     if(ajaxRequest.readyState == 4 && ajaxRequest.status==200)
     {
-      var ajaxResult = ajaxRequest.responseText;
-      document.querySelector('html').innerHTML = ajaxResult;
-      //GetInitialData();
-    }
-  };
-  ajaxRequest.send();
-}
 
-function setTimerActivated (TimerNumbers, isActivated, it) {
-  if(!ajaxRequest){ alert("AJAX is not supported."); return; }
-
-  ajaxRequest.open("GET","SETTIMRACTIVATED-" + String (TimerNumbers) + String (isActivated),true);
-  ajaxRequest.onreadystatechange = function()
-  {
-    if(ajaxRequest.readyState == 4 && ajaxRequest.status==200)
-    {
-      if (isActivated) 
-        it.parentElement.style.textDecoration  = "none";
-      else  
-        it.parentElement.style.textDecoration  = "line-through";
-    }
-  };
-  ajaxRequest.send();
-}
-
-function ajaxLoad(ajaxURL)
-{
-  if(!ajaxRequest){ alert("AJAX is not supported."); return; }
- 
-  ajaxRequest.open("GET",ajaxURL,true);
-  ajaxRequest.onreadystatechange = function()
-  {
-    if(ajaxRequest.readyState == 4 && ajaxRequest.status==200)
-    {
-      var ajaxResult = ajaxRequest.responseText;
-      if      ( ajaxResult == "VALVEISON" )   { document.getElementById("StartValveButton").innerHTML = "Stop"; }
-      else if ( ajaxResult == "VALVEISOFF" )  { document.getElementById("StartValveButton").innerHTML = "Start"; }
-      document.getElementById("ValveMessage").innerHTML = ajaxResult;
-      GetInitialData();
-    }
-  };
-  ajaxRequest.send();
-}
-
-function ajaxSetTime(timevalue, duration, valveNum)
-{
-  if(!ajaxRequest){ alert("AJAX is not supported."); return; }
-  ajaxRequest.open("GET","TIME-" + String (timevalue) + "FOR" + String (duration) + "!" + valveNum,true);
-  ajaxRequest.onreadystatechange = function()
-  {
-    if(ajaxRequest.readyState == 4 && ajaxRequest.status==200)
-    {
-      var ajaxResult = ajaxRequest.responseText;
-      if (ajaxResult == "SUCCESS")
-        GetInitialData();
     }
   };
   ajaxRequest.send();
@@ -201,39 +133,6 @@ function resetHistoryAjax () {
   ajaxRequest.send();
 }
 
-
-function resetTimers()
-{
-  if(!ajaxRequest){ alert("AJAX is not supported."); return; }
-  ajaxRequest.open("GET","RESETTIMRS");
-  ajaxRequest.onreadystatechange = function()
-  {
-    if(ajaxRequest.readyState == 4 && ajaxRequest.status==200)
-    {
-      var ajaxResult = ajaxRequest.responseText;
-      if (ajaxResult == "SUCCESS")
-        GetInitialData();
-    }
-  };
-  ajaxRequest.send();
-}
-
-function deleteThisTimer(timerValues) {
-  if(!ajaxRequest){ alert("AJAX is not supported."); return; }
-  ajaxRequest.open("GET","DELETETIMR-" + timerValues);
-  ajaxRequest.onreadystatechange = function()
-  {
-    if(ajaxRequest.readyState == 4 && ajaxRequest.status==200)
-    {
-      var ajaxResult = ajaxRequest.responseText;
-      if (ajaxResult == "SUCCESS")
-        GetInitialData();
-      //document.getElementById("show_time").innerHTML = ajaxResult;
-    }
-  };
-  ajaxRequest.send();
-}
-
 function GetInitialData()
 {
   if(!ajaxRequest){ alert("AJAX is not supported."); return; }
@@ -243,51 +142,12 @@ function GetInitialData()
   {
     if(ajaxRequest.readyState == 4 && ajaxRequest.status==200)
     {
-      var ajaxResult = ajaxRequest.responseText;
-      document.getElementById("show_output").innerHTML = ajaxResult;
-      var data = [];
-    var data1 = [];
-      var pos;
-    var pos1;
-      if (ajaxResult.includes("+")){
-        pos = ajaxResult.indexOf("+");
-    pos1 = ajaxResult.indexOf("-");
-        for (var i = pos; i < (pos1 - 1); i = i + 3){
-          var newString = String ( ajaxResult.charAt(i + 1) ) + String (ajaxResult.charAt(i + 2));
-          data.push (newString); 
-        }
-        for (var j = pos1; j < (ajaxResult.length - 1); j = j + 3){
-          var newString1 = String ( ajaxResult.charAt(j + 1) ) + String (ajaxResult.charAt(j + 2));
-          data1.push (newString1); 
-        }
-        document.getElementById("historyTable").innerHTML = "";
-        document.getElementById("TimerList").innerHTML = "";    
-
-      for (var v = 0; v < data.length ; v = v+7) {
-          //var newTable = "<tr><th>" + days[data[v]]; + "</th><th>" + data[v+1] + ":" + data[v+2] + ":" + data[v+3] +  "</th></tr>"
-          var newTable = "<tr><td><img src='https://dl2.macupdate.com/images/icons256/51075.png' width='20' class='mr-2'>" + data[v] + ":" + data[v+1] + " - " + data[v+4] + ". " + data[v+3] + ". 20" + data[v+2] +" </td> <td>" + parseInt(data[v+6]) + "s </td> <td>" + parseInt(data[v+5]) + "</td> <td> <label class='badge badge-gradient-info'>DONE</label></td></tr>";
-      document.getElementById("historyTable").innerHTML += newTable;        
-        }
-      for (var w = 0; w < data1.length ; w = w+6) {
-        var stat = "";
-        var sty = "";
-        if (parseInt(data1[w+5]) > 0 ) 
-          stat = "checked='checked'";
-        else
-          sty= "text-decoration: line-through;";
-
-        var IDNumber = data1[w] + "" + data1[w+1] + "" + data1[w+2] + "" + data1[w+3] + "" + data1[w+4];
-        var listItem = "<li><div class='form-check'><label class='' style='margin-bottom: 0 !important;" + sty + "'><input class='checkbox' type='checkbox'" + stat +  "onclick='setTimerActivated(\"" + IDNumber + "\", this.checked, this)' >" + data1[w] + ":" + data1[w+1] + " - " + Number(data1[w+2]) + "" + Number(data1[w+3]) + "s - " +  Number(data1[w+4])  + "</label></div><i class='remove mdi mdi-close-circle-outline' onclick='deleteThisTimer(\"" + IDNumber + "\")'></i></li>";
-
-         document.getElementById("TimerList").innerHTML += listItem;    
+        
       
-    }
-      }
     }
   };
   ajaxRequest.send();
 }   
-
  
 </script>
 
@@ -348,14 +208,14 @@ function GetInitialData()
               </a>
             </li>
             <li class="nav-item" >
-              <a class="nav-link" href="#" onclick="setHtmlFile('index.html')">
-                <span class="menu-title" "><b>Dashboard</b></span>
+              <a class="nav-link" href="#"  onclick="setHtmlFile('index.html')">
+                <span class="menu-title">Dashboard</span>
                 <i class="mdi mdi-home menu-icon"></i>
               </a>
             </li>
             <li class="nav-item" >
               <a class="nav-link" href="#" onclick="setHtmlFile('settings.html')">
-                <span class="menu-title">Settings</span>
+                <span class="menu-title"><b>Settings</b></span>
                 <i class="mdi mdi-settings menu-icon"></i>
               </a>
             </li>
@@ -372,7 +232,7 @@ function GetInitialData()
               <h3 class="page-title">
                 <span class="page-title-icon bg-gradient-primary text-white mr-2">
                   <i class="mdi mdi-home"></i>
-                </span> Dashboard </h3>
+                </span> Settings </h3>
          
          <span class="d-flex align-items-left" style="visibility:hidden;">
                   <i class="mdi mdi-close" id="bannerClose"></i>
@@ -420,80 +280,17 @@ function GetInitialData()
         </div><!-- /input-group -->
             </span>
       
-      <div class="row" id="valveOpen" style="display: none;">
-              <div class="col-md-12 stretch-card grid-margin">
-                <div class="card bg-gradient-success card-img-holder text-white">
-                  <div class="card-body">
-                    <h2 class="font-weight-normal mb-3"><div  id="ValveMessage"> </div>  <i class="mdi mdi-chart-line mdi-24px float-right"></i>
-                    </h2>
-                  </div>
-                </div>
-              </div>
+        <span class="d-flex align-items-center purchase-popup">
+        <div class="input-group">
+        <label class="col-sm-3 col-form-label">Reset history</label>
 
-      </div>
+          <span class="input-group-btn col-sm-2">
 
-      
-            <div class="row">       
-        <div class="col-md-5 grid-margin stretch-card">
-                <div class="card">
-                  <div class="card-body">
-                    <h4 class="card-title">Timers</h4>
-                    <div class="d-flex" style="margin-bottom: 1em">
-                      <input type="time" style="margin-right: 0.5em" class="form-control todo-list-input" id ="TIME_value1">
-                      <input type="number" style="margin-right: 0.5em"class="form-control todo-list-input" placeholder="Seconds" id="TIME_duration1">
-                      <input type="number"  class="form-control todo-list-input" placeholder="Valve" id="TIME_valveNum">
-                    </div>
-                      <button style="margin-bottom: 1em" class="add btn btn-gradient-primary font-weight-bold todo-list-add-btn btn-block" id="add-task" onclick="setTime()" >Add</button>
-
-                    <div class="list-wrapper" >
-                      <ul class="d-flex flex-column-reverse todo-list todo-list-custom" id="TimerList">
-                        <li>
-                          <div class="">
-                            <label class="form-check-label">
-                              <input class="checkbox" type="checkbox"> Meeting with Alisa </label>
-                          </div>
-                          <i class="remove mdi mdi-close-circle-outline"></i>
-                        </li>
-                        <li class="completed">
-                          <div class="">
-                            <label class="form-check-label">
-                              <input class="checkbox" type="checkbox" checked> Call John </label>
-                          </div>
-                          <i class="remove mdi mdi-close-circle-outline"></i>
-                        </li>
-                        
-                      </ul>
-                      <br />
-                      <!--<button type="button" class="btn btn-dark btn-lg btn-block" oncick="resetTimers()">Reset Timers</button>  -->                 
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-        <div class="col-7 grid-margin">
-                <div class="card">
-                  <div class="card-body">
-                    <h4 class="card-title">Recent waterings</h4>
-                    <div class="table-responsive">
-                      <table class="table">
-                        <thead>
-                          <tr>
-                            <th> Time </th>
-                            <th> Duration </th>
-                            <th> Valve </th>
-                            <th> Status </th>
-                          </tr>
-                        </thead>
-                        <tbody id="historyTable">
-              
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-        
-            </div>
+          <button type="submit" class="font-weight-bold btn btn-gradient-primary btn-block" id="StartValveButton" onclick="resetHistory()">Reset</button>
+          </span>
+        </div><!-- /input-group -->
+            </span>
+          
 
           </div>
           <!-- content-wrapper Dashboard ends -->
@@ -505,12 +302,6 @@ function GetInitialData()
 
             </div>
           </footer>
-        <footer class="footer">
-            <div class="d-sm-flex justify-content-center justify-content-sm-between">
-        <span class="text-muted text-center text-sm-right d-block d-sm-inline-block" id="show_output">Template by</span>
-
-            </div>
-          </footer>
 
           <!-- partial -->
         </div>
@@ -519,6 +310,7 @@ function GetInitialData()
       <!-- page-body-wrapper ends -->
     </div>
     <!-- container-scroller -->
+    <!-- plugins:js -->
     <!-- plugins:js -->
     <script src="http://www.bootstrapdash.com/demo/purple-admin-free/assets/vendors/js/vendor.bundle.base.js"></script>
     <!-- endinject -->
