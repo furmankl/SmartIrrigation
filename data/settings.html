@@ -1,0 +1,330 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Purple Admin</title>
+    <!-- plugins:css -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.0.45/css/materialdesignicons.min.css">
+<link rel="stylesheet" type="textcss" href="style.css">
+
+    <!-- endinject -->
+    <!-- Plugin css for this page -->
+    <!-- End plugin css for this page -->
+    <!-- inject:css -->
+    <!-- endinject -->
+    <!-- Layout styles -->
+  <style>
+@import url('https://fonts.googleapis.com/css?family=Ubuntu:300,400,500,700&display=swap');
+</style>
+
+<style type="text/css">
+
+/** == Add your CSS here == **/
+
+</style>
+
+ <link rel="stylesheet" href="https://raw.githack.com/furmankl/SmartIrrigation/develop/css/style.css">
+  
+ <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.css" integrity="" crossorigin="anonymous">
+
+ <!-- End layout styles -->
+  <link rel="icon" 
+      type="image/png" 
+      href="https://dl2.macupdate.com/images/icons256/51075.png">
+
+  
+<script>
+
+  function startEverything() {
+    //LoadCss("style.css");
+  }
+
+
+function startValve() 
+  {
+       var button_text = document.getElementById("StartValveButton").innerHTML;
+     if (button_text=="Start")
+     {
+       document.getElementById("StartValveButton").innerHTML = "Starting";
+       ajaxLoad('VALVEONd' + document.getElementById('manualDuration').value + 'm' + document.getElementById('valveNum').value); 
+     }
+     else
+     {
+       document.getElementById("StartValveButton").innerHTML = "Stopping";
+       ajaxLoad('VALVEOFF');
+     }
+    }
+        
+
+
+var oldValveMessage = "";
+var ajaxRequest = null;
+if (window.XMLHttpRequest)  { ajaxRequest =new XMLHttpRequest(); }
+else                        { ajaxRequest =new ActiveXObject("Microsoft.XMLHTTP"); }
+ 
+ 
+window.setInterval(function(){
+//Update();
+}, 1000);
+
+function Update()
+{
+  if(!ajaxRequest){ alert("AJAX is not supported."); return; }
+  
+  ajaxRequest.open("GET","UPDATE");
+  ajaxRequest.onreadystatechange = function()
+  {
+    if(ajaxRequest.readyState == 4 && ajaxRequest.status==200)
+    {
+      var ajaxResult = ajaxRequest.responseText;
+      if (ajaxResult != oldValveMessage) {
+        if (ajaxResult.includes("open")){
+        document.getElementById("valveOpen").style.display = "flex";
+        document.getElementById("ValveMessage").innerHTML = ajaxResult;
+      }
+      else if (ajaxResult.includes("ValvesClosed"))
+        document.getElementById("valveOpen").style.display = "none";
+        oldValveMessage = ajaxResult;
+      }
+      
+
+    }
+  };
+  ajaxRequest.send();
+}
+
+function setHtmlFile (fileName) {
+  if(!ajaxRequest){ alert("AJAX is not supported."); return; }
+
+  ajaxRequest.open("GET","SETTIMRACTIVATED-" + String (fileName),true);
+  ajaxRequest.onreadystatechange = function()
+  {
+    if(ajaxRequest.readyState == 4 && ajaxRequest.status==200)
+    {
+
+    }
+  };
+  ajaxRequest.send();
+}
+
+function resetHistory() {
+
+  if (confirm('Are you sure you want to erase all history?')) {
+      resetHistoryAjax();
+  } else {
+      // Do nothing!
+  }
+}
+
+function resetHistoryAjax () {
+  if(!ajaxRequest){ alert("AJAX is not supported."); return; }
+
+  ajaxRequest.open("GET","RESETHISTORY",true);
+  ajaxRequest.onreadystatechange = function()
+  {
+    if(ajaxRequest.readyState == 4 && ajaxRequest.status==200)
+    {
+      alert ("history reset");
+    }
+  };
+  ajaxRequest.send();
+}
+
+function GetInitialData()
+{
+  if(!ajaxRequest){ alert("AJAX is not supported."); return; }
+
+  ajaxRequest.open("GET","INIT");
+  ajaxRequest.onreadystatechange = function()
+  {
+    if(ajaxRequest.readyState == 4 && ajaxRequest.status==200)
+    {
+        
+      
+    }
+  };
+  ajaxRequest.send();
+}   
+ 
+</script>
+
+
+  </head>
+  <body onload="GetInitialData()">
+    <div class="container-scroller">
+      <!-- partial:partials/_navbar.html -->
+      <nav class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+        <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
+        <img src="https://dl2.macupdate.com/images/icons256/51075.png" alt="image" height="40px">
+        &nbsp;  <b>SIrrigation</b>
+
+    </div>
+        <div class="navbar-menu-wrapper d-flex align-items-stretch">
+          <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
+            <span class="mdi mdi-menu"></span>
+          </button>
+
+          <ul class="navbar-nav navbar-nav-right">
+      
+            <li class="nav-item d-none d-lg-block full-screen-link">
+              <a class="nav-link">
+                <i class="mdi mdi-fullscreen" id="fullscreen-button"></i>
+              </a>
+            </li>
+
+            
+            <li class="nav-item nav-logout d-none d-lg-block">
+              <a class="nav-link" href="#">
+                <i class="mdi mdi-power"></i>
+              </a>
+            </li>
+
+      </ul>
+          <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button" data-toggle="offcanvas">
+            <span class="mdi mdi-menu"></span>
+          </button>
+        </div>
+      </nav>
+      <!-- partial -->
+      <div class="container-fluid page-body-wrapper">
+        <!-- partial:partials/_sidebar.html -->
+        <nav class="sidebar sidebar-offcanvas" id="sidebar">
+          <ul class="nav">
+            <li class="nav-item nav-profile">
+              <a href="#" class="nav-link">
+                <div class="nav-profile-image">
+                  <img src="http://www.bootstrapdash.com/demo/purple-admin-free/assets/images/faces/face1.jpg" alt="profile">
+                  <span class="login-status online"></span>
+                  <!--change to offline or busy as needed-->
+                </div>
+                <div class="nav-profile-text d-flex flex-column">
+                  <span class="font-weight-bold mb-2">David Grey. H</span>
+                  <span class="text-secondary text-small"></span>
+                </div>
+                <i class="mdi mdi-bookmark-check text-success nav-profile-badge"></i>
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link" href="#"  onclick="setHtmlFile('index.html')">
+                <span class="menu-title">Dashboard</span>
+                <i class="mdi mdi-home menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link" href="#" onclick="setHtmlFile('settings.html')">
+                <span class="menu-title"><b>Settings</b></span>
+                <i class="mdi mdi-settings menu-icon"></i>
+              </a>
+            </li>
+            
+
+          </ul>
+        </nav>
+        <!-- partial -->
+        <div class="main-panel">
+          <!-- content-wrapper Dashboard starts -->
+
+          <div class="content-wrapper" id="content-dashboard">
+            <div class="page-header"  >
+              <h3 class="page-title">
+                <span class="page-title-icon bg-gradient-primary text-white mr-2">
+                  <i class="mdi mdi-home"></i>
+                </span> Settings </h3>
+         
+         <span class="d-flex align-items-left" style="visibility:hidden;">
+                  <i class="mdi mdi-close" id="bannerClose"></i>
+                </span>
+              <nav aria-label="breadcrumb" style=" display:none !important;">
+                <ul class="breadcrumb">
+                  <li class="breadcrumb-item active" aria-current="page">
+                    <span></span>Overview <i class="mdi mdi-alert-circle-outline icon-sm text-primary align-middle"></i>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+
+
+        
+
+        <span class="d-flex align-items-center purchase-popup">
+        <div class="input-group">
+        <label class="col-sm-3 col-form-label">Trigger manually</label>
+          <div class="col-sm-4">
+            <select class="form-control" id="manualDuration">
+                    <option value="5">5 s</option>
+                  <option value="30">30 s</option>
+                  <option value="60">1 min</option>
+                  <option value="90">1.5 min</option>
+                  <option value="120">2 min</option>
+                  <option value="180">3 min</option>
+                  <option value="240">4 min</option>
+                  <option value="300">5 min</option>
+                  <option value="480">8 min</option>
+                  <option value="600">10 min</option>
+                  </select>
+          </div>
+          <div class="col-sm-3">
+              <select class="form-control" id="valveNum">>
+                                <option value="1">Valve 1</option>
+                <option value="5">Valve 5</option>
+            </select>
+
+          </div>
+          <span class="input-group-btn col-sm-2">
+
+                      <button type="submit" class="font-weight-bold btn btn-gradient-primary btn-block" id="StartValveButton" onclick="startValve()">Start</button>
+          </span>
+        </div><!-- /input-group -->
+            </span>
+      
+        <span class="d-flex align-items-center purchase-popup">
+        <div class="input-group">
+        <label class="col-sm-3 col-form-label">Reset history</label>
+
+          <span class="input-group-btn col-sm-2">
+
+          <button type="submit" class="font-weight-bold btn btn-gradient-primary btn-block" id="StartValveButton" onclick="resetHistory()">Reset</button>
+          </span>
+        </div><!-- /input-group -->
+            </span>
+          
+
+          </div>
+          <!-- content-wrapper Dashboard ends -->
+
+          <!-- partial:partials/_footer.html -->
+          <footer class="footer">
+            <div class="d-sm-flex justify-content-center justify-content-sm-between">
+              <span class="text-muted text-center text-sm-right d-block d-sm-inline-block">Template by <a href="https://www.bootstrapdash.com/" target="_blank">BootstrapDash</a>. </span>
+
+            </div>
+          </footer>
+
+          <!-- partial -->
+        </div>
+        <!-- main-panel ends -->
+      </div>
+      <!-- page-body-wrapper ends -->
+    </div>
+    <!-- container-scroller -->
+    <!-- plugins:js -->
+    <!-- plugins:js -->
+    <script src="http://www.bootstrapdash.com/demo/purple-admin-free/assets/vendors/js/vendor.bundle.base.js"></script>
+    <!-- endinject -->
+    <!-- Plugin js for this page -->
+    <script src="http://www.bootstrapdash.com/demo/purple-admin-free/assets/vendors/chart.js/Chart.min.js"></script>
+    <!-- End plugin js for this page -->
+    <!-- inject:js -->
+   <script src="http://www.bootstrapdash.com/demo/purple-admin-free/assets/js/off-canvas.js"></script>
+    <script src="http://www.bootstrapdash.com/demo/purple-admin-free/assets/js/hoverable-collapse.js"></script>
+    <script src="http://www.bootstrapdash.com/demo/purple-admin-free/assets/js/misc.js"></script>
+    <!-- endinject -->
+    <!-- Custom js for this page -->
+    <script src="http://www.bootstrapdash.com/demo/purple-admin-free/assets/js/dashboard.js"></script>
+    <script src="http://www.bootstrapdash.com/demo/purple-admin-free/assets/js/todolist.js"></script>
+    <!-- End custom js for this page -->
+  </body>
+</html>
