@@ -8,9 +8,8 @@ String header = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n";
 #include <FS.h>
 
 #include "credentials.h"
-
-const char ssid[] = WIFI_SSID;
-const char pass[] = WIFI_PASSWD;
+const char *ssid = "WIFI_SSID";
+const char *pass = "WIFI_PASSWD";
 
 WiFiServer server(80);
  
