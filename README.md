@@ -1,6 +1,6 @@
 # SmartIrrigation
 
-Simple ESP8266 Smart Irrigation system with bootstrap web interface
+Simple ESP8266 (LOLIN D1 mini) Smart Irrigation system with bootstrap web interface
 
 Requirements
 ------------
