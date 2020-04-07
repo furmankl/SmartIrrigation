@@ -22,7 +22,7 @@ You'll need the following libraries in Arduino IDE:
 
 And the following library, installed from git repository (!)
 1. NTP Cleint -  [taranais's fork](https://github.com/taranais/NTPClient) (download master as .zip an extract it to libraries folder)
-2.Arduino ESP8266 filesystem uploader (SPIFFS) [availabe in this repo](https://github.com/esp8266/arduino-esp8266fs-plugin) (download it from releases and follow the instructions on github readme or follow [this guide](https://www.instructables.com/id/Using-ESP8266-SPIFFS)  
+2. Arduino ESP8266 filesystem uploader (SPIFFS) [availabe in this repo](https://github.com/esp8266/arduino-esp8266fs-plugin) (download it from releases and follow the instructions on github readme or follow [this guide](https://www.instructables.com/id/Using-ESP8266-SPIFFS)  
 
 ### Set-up
 1. Use Spiffs to upload files from the "data" folder to the board's flash memory (if unclear, follow [this guide](https://www.instructables.com/id/Using-ESP8266-SPIFFS/)  
