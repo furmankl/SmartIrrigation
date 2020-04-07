@@ -12,17 +12,26 @@ Image 1: Lolin D1 Mini with 12V DC Power Shield and a Relay Shield.
 
 Installation
 ------------
-
+### Libraries
 To build and install it, I use the Arduino IDE software.
 
 You'll need the following libraries in Arduino IDE:
 1. ESP8266 board libraries
 2. Wifi (from Arduino, install from the Library Manager)
-3. SPIFFS
-4. ... 
+3. ... 
 
 And the following library, installed from git repository (!)
 1. NTP Cleint -  [taranais's fork](https://github.com/taranais/NTPClient) (download master as .zip an extract it to libraries folder)
+2.Arduino ESP8266 filesystem uploader (SPIFFS) [availabe in this repo](https://github.com/esp8266/arduino-esp8266fs-plugin) (download it from releases and follow the instructions on github readme or follow [this guide](https://www.instructables.com/id/Using-ESP8266-SPIFFS)  
+
+### Set-up
+1. Use Spiffs to upload files from the "data" folder to the board's flash memory (if unclear, follow [this guide](https://www.instructables.com/id/Using-ESP8266-SPIFFS/)  
+2. Change wifi credentials in your .ino files
+3. On a computer that is on the same LAN network as the board, open WebView in the brower at the boards's IP adress (will probably be something like 192.168.1.x, can be found in Serial feed or in your Router settings)
+4. Set new Timers in WebView or use it to immidiately trigger relays
+
+<img src="https://i.ibb.co/QN0SSHh/SIrrigation-webview.png" height="300">
+Image 2: SIrrigation Web View, based on the "Purple Admin" Bootstrap template from www.bootstrapdash.com
 
 Usage
 -----
@@ -39,8 +48,7 @@ data (locations can be changed)
 | 10 - 80  | Place for timers data (max 10 timers)  |
 | 100 - 170  | Recent valve triggers (now last 10 triggerings, can be changed)  |
 
-<img src="https://i.ibb.co/QN0SSHh/SIrrigation-webview.png" height="300">
-Image 2: SIrrigation Web View, based on the "Purple Admin" Bootstrap template from www.bootstrapdash.com
+
 
 To-do
 -----
