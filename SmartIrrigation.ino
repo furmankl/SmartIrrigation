@@ -8,8 +8,9 @@ String header = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n";
 #include <FS.h>
 
 #include "credentials.h"
-const char *ssid = "WIFI_SSID";
-const char *pass = "WIFI_PASSWD";
+
+const char ssid[] = WIFI_SSID; //The name of the AP/SSID you connect to
+const char pass[] = WIFI_PASSWD; //The WPA key of your AP
 
 WiFiServer server(80);
  
@@ -34,6 +35,7 @@ const long utcOffsetInSeconds = 3600;
 String formattedDate;
 String dayStamp;
 String timeStamp;
+int timezoneOffset = +2;
 
 // Define NTP Client to get time
 WiFiUDP ntpUDP;
@@ -46,14 +48,11 @@ bool alreadyStarted = false;
 
 // HTML files
 String currentHtmlFile = "settings.html";
-
 void setup() 
 {
     pinMode(LED_Pin, OUTPUT);     
- 
     Serial.begin(115200);
 
- 
     // Connect to a WiFi network
     Serial.print(F("Connecting to "));  Serial.println(ssid);
     WiFi.begin(ssid, pass);
@@ -73,28 +72,24 @@ void setup()
     server.begin();
     Serial.println("Server started");
 
-    timeClient.begin();
-    timeClient.update();
     EEPROM.begin(512);
-
-    if (SPIFFS.begin()){
-        Serial.println(F("done."));
-    }else{
-        Serial.println(F("fail."));
-    }    
-    timeClient.setTimeOffset(7200);
-     //AddSampleEntries();
     
-    Serial.println ("Time now: " + GetTimestamp(1) + ":" + GetDatestamp(2));
-     
-  for (int i = startTimersAtPosition; i <startTimersAtPosition + 60; i++){
-     if (EEPROM.read(i) > 0){}
-     else {
-      break;
-     }
-  }
+    // start NTP time client
+    timeClient.begin();
+    if (EEPROM.read(1) == 255)
+        EEPROM.write(1, (timezoneOffset+12)*2); 
+    //EEPROM.update();
 
-  //RemoveAllTimers();
+    //timeClient.setTimeOffset(timezoneOffset * 3600);
+   
+    if (SPIFFS.begin())
+        Serial.println(F("SPIFFS started."));
+    else
+        Serial.println(F("SPIFFS failed."));
+    
+    //AddSampleEntries();
+
+    //RemoveAllTimers();
 } // void setup()
  
  
@@ -152,6 +147,21 @@ void loop()
                 client.print( header );
                 client.print( "VALVEISOFF"); 
              }
+    else if  ( request.indexOf("SETTIMEZONE-") > 0 ) 
+             { 
+                int pos1 = request.indexOf("-")+1;
+                int pos2 = request.indexOf("!")-1;
+                String num = "";
+                for (int i = pos1; i <= pos2; i++) {
+                  num+= request.charAt(i);
+                }
+                Serial.println("TimeZone set to: " + num + "(" + ((num.toInt() + 12) * 2) + ")");
+                EEPROM.write(1, ((num.toFloat() + 12) * 2));
+                timeClient.setTimeOffset(((num.toFloat() + 12) * 2) * 3600);
+                client.print( header );
+                //client.print( num ); 
+             }
+
      else if  ( request.indexOf("RESETHISTORY") > 0 ) 
              { 
                 AddSampleEntries();
@@ -298,7 +308,14 @@ void loop()
                 }
                 response = (response);
                 client.print( response ); 
-             }             
+             }     
+   else if  ( request.indexOf("INSETTINGS") > 0 ) 
+             { 
+                client.print( header );
+                float i = EEPROM.read(1);
+                Serial.println("Read :" +  String(i) + "(" + String(( i / 2) -12) + ")");
+                client.println(String(( i / 2) -12)); 
+             }
     else
     {
         client.flush();
@@ -453,7 +470,6 @@ String runspiffs(String Fname) {
 
 //add entry to history
 void AddEntry(int location, int duration, int valve) {
-    timeClient.update();
   int duration_limited;
   if (duration < 99)
     duration_limited = duration;

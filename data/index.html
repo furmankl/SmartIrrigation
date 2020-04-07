@@ -5,11 +5,11 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Purple Admin</title>
+    <title>Sirrigation</title>
     <!-- plugins:css -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.0.45/css/materialdesignicons.min.css">
-<link rel="stylesheet" type="textcss" href="style.css">
-
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
     <!-- endinject -->
     <!-- Plugin css for this page -->
     <!-- End plugin css for this page -->
@@ -19,16 +19,9 @@
   <style>
 @import url('https://fonts.googleapis.com/css?family=Ubuntu:300,400,500,700&display=swap');
 </style>
-
-<style type="text/css">
-
-/** == Add your CSS here == **/
-
-</style>
-
- <link rel="stylesheet" href="https://raw.githack.com/furmankl/SmartIrrigation/develop/css/style.css">
+ <link rel="stylesheet" href="https://raw.githack.com/furmankl/SmartIrrigation/master/css/style.css">
   
- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.css" integrity="" crossorigin="anonymous">
+  <!--<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.css" integrity="" crossorigin="anonymous">-->
 
  <!-- End layout styles -->
   <link rel="icon" 
@@ -120,6 +113,8 @@ function setHtmlFile (fileName) {
     {
       var ajaxResult = ajaxRequest.responseText;
       document.querySelector('html').innerHTML = ajaxResult;
+      if (fileName.includes("settings"))
+        GetInitialSettings();
       //GetInitialData();
     }
   };
@@ -143,6 +138,22 @@ function setTimerActivated (TimerNumbers, isActivated, it) {
   ajaxRequest.send();
 }
 
+function setTimeZone (fileName) {
+  if(!ajaxRequest){ alert("AJAX is not supported."); return; }
+
+  var tz = document.getElementById("timeZoneSelector").value;
+
+  ajaxRequest.open("GET","SETTIMEZONE-" + tz + "!",true);
+  ajaxRequest.onreadystatechange = function()
+  {
+    if(ajaxRequest.readyState == 4 && ajaxRequest.status==200)
+    {
+
+    }
+  };
+  ajaxRequest.send();
+}
+
 function ajaxLoad(ajaxURL)
 {
   if(!ajaxRequest){ alert("AJAX is not supported."); return; }
@@ -161,6 +172,20 @@ function ajaxLoad(ajaxURL)
   };
   ajaxRequest.send();
 }
+function GetInitialSettings()
+{
+  if(!ajaxRequest){ alert("AJAX is not supported."); return; }
+  ajaxRequest.open("GET","INSETTINGS");
+  ajaxRequest.onreadystatechange = function()
+  {
+    if(ajaxRequest.readyState == 4 && ajaxRequest.status==200)
+    {
+        var ajaxResult = ajaxRequest.responseText;
+        document.getElementById('timeZoneSelector').value = parseFloat(ajaxResult);
+    }
+  };
+  ajaxRequest.send();
+}  
 
 function ajaxSetTime(timevalue, duration, valveNum)
 {
@@ -357,6 +382,7 @@ function GetInitialData()
               <a class="nav-link" href="#" onclick="setHtmlFile('settings.html')">
                 <span class="menu-title">Settings</span>
                 <i class="mdi mdi-settings menu-icon"></i>
+                <i class="material-icons md-18 menu-icon">settings</i>
               </a>
             </li>
             
@@ -424,7 +450,7 @@ function GetInitialData()
               <div class="col-md-12 stretch-card grid-margin">
                 <div class="card bg-gradient-success card-img-holder text-white">
                   <div class="card-body">
-                    <h2 class="font-weight-normal mb-3"><div  id="ValveMessage"> </div>  <i class="mdi mdi-chart-line mdi-24px float-right"></i>
+                    <h2 class="font-weight-normal mb-3" style="margin-bottom: 0 !important;"><span  id="ValveMessage"> </span>  <i class="mdi mdi-opacity mdi-24px float-right"></i>
                     </h2>
                   </div>
                 </div>
@@ -434,16 +460,10 @@ function GetInitialData()
 
       
             <div class="row">       
-        <div class="col-md-5 grid-margin stretch-card">
+            <div class="col-md-5 grid-margin stretch-card">
                 <div class="card">
                   <div class="card-body">
                     <h4 class="card-title">Timers</h4>
-                    <div class="d-flex" style="margin-bottom: 1em">
-                      <input type="time" style="margin-right: 0.5em" class="form-control todo-list-input" id ="TIME_value1">
-                      <input type="number" style="margin-right: 0.5em"class="form-control todo-list-input" placeholder="Seconds" id="TIME_duration1">
-                      <input type="number"  class="form-control todo-list-input" placeholder="Valve" id="TIME_valveNum">
-                    </div>
-                      <button style="margin-bottom: 1em" class="add btn btn-gradient-primary font-weight-bold todo-list-add-btn btn-block" id="add-task" onclick="setTime()" >Add</button>
 
                     <div class="list-wrapper" >
                       <ul class="d-flex flex-column-reverse todo-list todo-list-custom" id="TimerList">
@@ -464,10 +484,19 @@ function GetInitialData()
                         
                       </ul>
                       <br />
-                      <!--<button type="button" class="btn btn-dark btn-lg btn-block" oncick="resetTimers()">Reset Timers</button>  -->                 
+                      <!--<button type="button" class="btn btn-dark btn-lg btn-block" oncick="resetTimers()">Reset Timers</button>  -->     
+                      <hr />
+                                          <h4 class="card-title">Add Timer</h4>
+                    <div class="d-flex" style="margin-bottom: 1em">
+                      <input type="time" style="margin-right: 0.5em" class="form-control todo-list-input" id ="TIME_value1">
+                      <input type="number" style="margin-right: 0.5em"class="form-control todo-list-input" placeholder="Seconds" id="TIME_duration1">
+                      <input type="number"  class="form-control todo-list-input" placeholder="Valve" id="TIME_valveNum">
+                    </div>
+                      <button style="margin-bottom: 1em" class="add btn btn-gradient-primary font-weight-bold todo-list-add-btn btn-block" id="add-task" onclick="setTime()" >Add</button>            
                     </div>
                   </div>
                 </div>
+
               </div>
               
         <div class="col-7 grid-margin">
