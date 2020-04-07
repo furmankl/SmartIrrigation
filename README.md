@@ -7,6 +7,7 @@ Requirements
 
 This was built on an "LOLIN D1 mini" with a Relay shield. Here is the  [Aliexpress link to the 3 € Wemos board ](https://www.aliexpress.com/item/32529101036.html?spm=a2g0s.9042311.0.0.27424c4d6wPAsC) and the [link to the € 0,39 relay shield](https://www.aliexpress.com/item/32737849680.html?spm=a2g0s.9042311.0.0.27424c4d6wPAsC).
 
+<img src="https://i.ibb.co/FXxLfX0/92104625-2993948287334472-6268575034176962560-n.jpg" height="300">
 
 Installation
 ------------
