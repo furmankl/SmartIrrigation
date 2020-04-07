@@ -8,7 +8,8 @@
     <title>Sirrigation</title>
     <!-- plugins:css -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.0.45/css/materialdesignicons.min.css">
-
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
     <!-- endinject -->
     <!-- Plugin css for this page -->
     <!-- End plugin css for this page -->
@@ -381,6 +382,7 @@ function GetInitialData()
               <a class="nav-link" href="#" onclick="setHtmlFile('settings.html')">
                 <span class="menu-title">Settings</span>
                 <i class="mdi mdi-settings menu-icon"></i>
+                <i class="material-icons md-18 menu-icon">settings</i>
               </a>
             </li>
             
@@ -458,16 +460,10 @@ function GetInitialData()
 
       
             <div class="row">       
-        <div class="col-md-5 grid-margin stretch-card">
+            <div class="col-md-5 grid-margin stretch-card">
                 <div class="card">
                   <div class="card-body">
                     <h4 class="card-title">Timers</h4>
-                    <div class="d-flex" style="margin-bottom: 1em">
-                      <input type="time" style="margin-right: 0.5em" class="form-control todo-list-input" id ="TIME_value1">
-                      <input type="number" style="margin-right: 0.5em"class="form-control todo-list-input" placeholder="Seconds" id="TIME_duration1">
-                      <input type="number"  class="form-control todo-list-input" placeholder="Valve" id="TIME_valveNum">
-                    </div>
-                      <button style="margin-bottom: 1em" class="add btn btn-gradient-primary font-weight-bold todo-list-add-btn btn-block" id="add-task" onclick="setTime()" >Add</button>
 
                     <div class="list-wrapper" >
                       <ul class="d-flex flex-column-reverse todo-list todo-list-custom" id="TimerList">
@@ -488,10 +484,19 @@ function GetInitialData()
                         
                       </ul>
                       <br />
-                      <!--<button type="button" class="btn btn-dark btn-lg btn-block" oncick="resetTimers()">Reset Timers</button>  -->                 
+                      <!--<button type="button" class="btn btn-dark btn-lg btn-block" oncick="resetTimers()">Reset Timers</button>  -->     
+                      <hr />
+                                          <h4 class="card-title">Add Timer</h4>
+                    <div class="d-flex" style="margin-bottom: 1em">
+                      <input type="time" style="margin-right: 0.5em" class="form-control todo-list-input" id ="TIME_value1">
+                      <input type="number" style="margin-right: 0.5em"class="form-control todo-list-input" placeholder="Seconds" id="TIME_duration1">
+                      <input type="number"  class="form-control todo-list-input" placeholder="Valve" id="TIME_valveNum">
+                    </div>
+                      <button style="margin-bottom: 1em" class="add btn btn-gradient-primary font-weight-bold todo-list-add-btn btn-block" id="add-task" onclick="setTime()" >Add</button>            
                     </div>
                   </div>
                 </div>
+
               </div>
               
         <div class="col-7 grid-margin">
