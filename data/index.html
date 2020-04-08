@@ -114,7 +114,8 @@ function setHtmlFile (fileName) {
       document.querySelector('html').innerHTML = ajaxResult;
       if (fileName.includes("settings"))
         GetInitialSettings();
-      //GetInitialData();
+      else if (fileName.includes("index"))
+        GetInitialData();
     }
   };
   ajaxRequest.send();
@@ -550,7 +551,7 @@ function GetInitialData()
     <script src="http://www.bootstrapdash.com/demo/purple-admin-free/assets/vendors/js/vendor.bundle.base.js"></script>
     <!-- endinject -->
     <!-- Plugin js for this page -->
-    <script src="http://www.bootstrapdash.com/demo/purple-admin-free/assets/vendors/chart.js/Chart.min.js"></script>
+    <!--<script src="http://www.bootstrapdash.com/demo/purple-admin-free/assets/vendors/chart.js/Chart.min.js"></script>-->
     <!-- End plugin js for this page -->
     <!-- inject:js -->
    <script src="http://www.bootstrapdash.com/demo/purple-admin-free/assets/js/off-canvas.js"></script>
