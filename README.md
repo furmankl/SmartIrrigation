@@ -39,7 +39,9 @@ Usage
 The main functionality of Arduino-irrigation is that you can set the timers in a 
 web interface, determining the time, duration and select valve (relay) to open. It also 
 supports constant triggering of the relays. Additionally, all triggerings are saved to 
-the board flash storage with SPIFFS. 
+the board flash storage with SPIFFS. SIrrigation works offine, however it needs to be connected
+to Wi-fi when started in order to work as intended (I suggest making a hotspot on a mobile phone 
+if there is no Wi-Fi available, so time is set. Wi-Fi can be later broken. 
 Code opens SPIFFS storage with 512 locations (each 1 byte) and is later assigned following
 data (locations can be changed)
 | Location  | Data |
@@ -52,6 +54,6 @@ data (locations can be changed)
 
 To-do
 -----
-- finish settings page
-- enable off-line function (without wifi connection)
-- ...
+- Add new settings to settings page
+- enable off-line function (set time from settings)
+- add moisture sensor capability
