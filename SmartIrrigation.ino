@@ -13,6 +13,8 @@ const char ssid[] = WIFI_SSID; //The name of the AP/SSID you connect to
 const char pass[] = WIFI_PASSWD; //The WPA key of your AP
 
 WiFiServer server(80);
+
+bool offlineMode = true;
  
 String request = "";
 String requestTime = "";
@@ -60,13 +62,19 @@ void setup()
     while (WiFi.status() != WL_CONNECTED) {
         Serial.print(".");
         delay(500);
+        if (offlineMode && millis() > (10*3600)) {
+          Serial.println("No Wifi");
+          break;
+        }
     }
- 
-    Serial.println("");
-    Serial.println(F("[CONNECTED]"));
-    Serial.print("[IP ");              
-    Serial.print(WiFi.localIP()); 
-    Serial.println("]");
+    
+    if (WiFi.status() == WL_CONNECTED) {
+      Serial.println("");
+      Serial.println(F("[CONNECTED]"));
+      Serial.print("[IP ");              
+      Serial.print(WiFi.localIP()); 
+      Serial.println("]");
+    }
  
     // start a server
     server.begin();
@@ -78,6 +86,8 @@ void setup()
     timeClient.begin();
     if (EEPROM.read(1) == 255)
         EEPROM.write(1, (timezoneOffset+12)*2); 
+    else 
+      timeClient.setTimeOffset(((EEPROM.read(1)  / 2 ) - 12) * 3600);
     //EEPROM.update();
 
     //timeClient.setTimeOffset(timezoneOffset * 3600);
@@ -96,7 +106,11 @@ void setup()
  
 void loop() 
 {
-      timeClient.update();
+      while(!timeClient.update()) {
+        timeClient.forceUpdate();
+      }
+      //Serial.println("Time now: " + timeClient.getFormattedDate());
+      //delay(20);
       CheckValves();
 
 
@@ -156,8 +170,11 @@ void loop()
                   num+= request.charAt(i);
                 }
                 Serial.println("TimeZone set to: " + num + "(" + ((num.toInt() + 12) * 2) + ")");
-                EEPROM.write(1, ((num.toFloat() + 12) * 2));
-                timeClient.setTimeOffset(((num.toFloat() + 12) * 2) * 3600);
+                Serial.println("Time now: " + timeClient.getFormattedDate());
+                int t = (num.toFloat() + 12) * 2;
+                EEPROM.write(1, t);
+                EEPROM.commit();
+                timeClient.setTimeOffset(t * 3600);
                 client.print( header );
                 //client.print( num ); 
              }
@@ -187,7 +204,7 @@ void loop()
                 client.print(content);    
                 delay(5);
                 client.print( header );
-                client.print( "SUCCESS"); 
+                client.print("SUCCESS"); 
              }
     else if  ( request.indexOf("RESETTIMRS") > 0 ) 
              { 

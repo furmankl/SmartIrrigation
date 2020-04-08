@@ -8,8 +8,7 @@
     <title>Settings - Sirrigation</title>
     <!-- plugins:css -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.0.45/css/materialdesignicons.min.css">
-<link rel="stylesheet" type="textcss" href="style.css">
-
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!-- endinject -->
     <!-- Plugin css for this page -->
     <!-- End plugin css for this page -->
@@ -19,68 +18,14 @@
   <style>
 @import url('https://fonts.googleapis.com/css?family=Ubuntu:300,400,500,700&display=swap');
 </style>
-
-<style type="text/css">
-
-/** == Add your CSS here == **/
-
-</style>
-
- <link rel="stylesheet" href="https://raw.githack.com/furmankl/SmartIrrigation/develop/css/style.css">
+<link rel="stylesheet" href="https://raw.githack.com/furmankl/SmartIrrigation/master/css/style.css">
   
- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.css" integrity="" crossorigin="anonymous">
+ <!--<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.css" integrity="" crossorigin="anonymous">-->
 
  <!-- End layout styles -->
   <link rel="icon" 
       type="image/png" 
       href="https://dl2.macupdate.com/images/icons256/51075.png">
-
-  
-<script>
-
-var ajaxRequest = null;
-if (window.XMLHttpRequest)  { ajaxRequest =new XMLHttpRequest(); }
-else                        { ajaxRequest =new ActiveXObject("Microsoft.XMLHTTP"); }
- 
- 
-window.setInterval(function(){
-//Update();
-}, 1000);
-
-
-function setHtmlFile (fileName) {
-  if(!ajaxRequest){ alert("AJAX is not supported."); return; }
-
-  ajaxRequest.open("GET","SETTIMRACTIVATED-" + String (fileName),true);
-  ajaxRequest.onreadystatechange = function()
-  {
-    if(ajaxRequest.readyState == 4 && ajaxRequest.status==200)
-    {
-
-    }
-  };
-  ajaxRequest.send();
-}
-
-
-function GetInitialSettings()
-{
-  if(!ajaxRequest){ alert("AJAX is not supported."); return; }
-  alert("get initial settings");
-  ajaxRequest.open("GET","INSETTINGS");
-  ajaxRequest.onreadystatechange = function()
-  {
-    if(ajaxRequest.readyState == 4 && ajaxRequest.status==200)
-    {
-        var ajaxResult = ajaxRequest.responseText;
-        var tz = ajaxResult;
-        document.getElementById('timeZoneSelector').value = tz;
-    }
-  };
-  ajaxRequest.send();
-}   
- 
-</script>
 
 
   </head>
@@ -140,14 +85,13 @@ function GetInitialSettings()
             </li>
             <li class="nav-item" >
               <a class="nav-link" href="#" onclick="setHtmlFile('index.html')">
-                <span class="menu-title" "><b>Dashboard</b></span>
+                <span class="menu-title" ">Dashboard</span>
                 <i class="mdi mdi-home menu-icon"></i>
               </a>
             </li>
             <li class="nav-item" >
               <a class="nav-link" href="#" onclick="setHtmlFile('settings.html')">
-                <span class="menu-title">Settings</span>
-                <i class="mdi mdi-settings menu-icon"></i>
+                <span class="menu-title"><b>Settings</b></span>
                 <i class="material-icons md-18 menu-icon">settings</i>
               </a>
             </li>
@@ -185,7 +129,7 @@ function GetInitialSettings()
         <div class="input-group">
         <label class="col-sm-3 col-form-label">Set timezone</label>
           <div class="col-sm-4">
-            <select class="form-control" id="timeZoneSelector" onchange="setTimeZone();">
+            <select class="form-control" id="timeZoneSelector" onchange="setTimeZone();" style="color: black;">
   <option timeZoneId="1" gmtAdjustment="GMT-12:00" useDaylightTime="0" value="-12">(GMT-12:00) International Date Line West</option>
   <option timeZoneId="2" gmtAdjustment="GMT-11:00" useDaylightTime="0" value="-11">(GMT-11:00) Midway Island, Samoa</option>
   <option timeZoneId="3" gmtAdjustment="GMT-10:00" useDaylightTime="0" value="-10">(GMT-10:00) Hawaii</option>
@@ -309,7 +253,7 @@ function GetInitialSettings()
     <script src="http://www.bootstrapdash.com/demo/purple-admin-free/assets/vendors/js/vendor.bundle.base.js"></script>
     <!-- endinject -->
     <!-- Plugin js for this page -->
-    <script src="http://www.bootstrapdash.com/demo/purple-admin-free/assets/vendors/chart.js/Chart.min.js"></script>
+    <!--<script src="http://www.bootstrapdash.com/demo/purple-admin-free/assets/vendors/chart.js/Chart.min.js"></script>-->
     <!-- End plugin js for this page -->
     <!-- inject:js -->
    <script src="http://www.bootstrapdash.com/demo/purple-admin-free/assets/js/off-canvas.js"></script>

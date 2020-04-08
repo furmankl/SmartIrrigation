@@ -8,8 +8,7 @@
     <title>Sirrigation</title>
     <!-- plugins:css -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.0.45/css/materialdesignicons.min.css">
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons"
-      rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!-- endinject -->
     <!-- Plugin css for this page -->
     <!-- End plugin css for this page -->
@@ -115,7 +114,8 @@ function setHtmlFile (fileName) {
       document.querySelector('html').innerHTML = ajaxResult;
       if (fileName.includes("settings"))
         GetInitialSettings();
-      //GetInitialData();
+      else if (fileName.includes("index"))
+        GetInitialData();
     }
   };
   ajaxRequest.send();
@@ -269,7 +269,7 @@ function GetInitialData()
     if(ajaxRequest.readyState == 4 && ajaxRequest.status==200)
     {
       var ajaxResult = ajaxRequest.responseText;
-      document.getElementById("show_output").innerHTML = ajaxResult;
+      //document.getElementById("show_output").innerHTML = ajaxResult;
       var data = [];
     var data1 = [];
       var pos;
@@ -381,7 +381,6 @@ function GetInitialData()
             <li class="nav-item" >
               <a class="nav-link" href="#" onclick="setHtmlFile('settings.html')">
                 <span class="menu-title">Settings</span>
-                <i class="mdi mdi-settings menu-icon"></i>
                 <i class="material-icons md-18 menu-icon">settings</i>
               </a>
             </li>
@@ -419,7 +418,7 @@ function GetInitialData()
         <div class="input-group">
         <label class="col-sm-3 col-form-label">Trigger manually</label>
           <div class="col-sm-4">
-            <select class="form-control" id="manualDuration">
+            <select class="form-control" id="manualDuration" style="color: black;">
                     <option value="5">5 s</option>
                   <option value="30">30 s</option>
                   <option value="60">1 min</option>
@@ -433,7 +432,7 @@ function GetInitialData()
                   </select>
           </div>
           <div class="col-sm-3">
-              <select class="form-control" id="valveNum">>
+              <select class="form-control" id="valveNum" style="color: black;">
                                 <option value="1">Valve 1</option>
                 <option value="5">Valve 5</option>
             </select>
@@ -534,7 +533,7 @@ function GetInitialData()
 
             </div>
           </footer>
-        <footer class="footer">
+        <footer class="footer" style="display: none;">
             <div class="d-sm-flex justify-content-center justify-content-sm-between">
         <span class="text-muted text-center text-sm-right d-block d-sm-inline-block" id="show_output">Template by</span>
 
@@ -552,7 +551,7 @@ function GetInitialData()
     <script src="http://www.bootstrapdash.com/demo/purple-admin-free/assets/vendors/js/vendor.bundle.base.js"></script>
     <!-- endinject -->
     <!-- Plugin js for this page -->
-    <script src="http://www.bootstrapdash.com/demo/purple-admin-free/assets/vendors/chart.js/Chart.min.js"></script>
+    <!--<script src="http://www.bootstrapdash.com/demo/purple-admin-free/assets/vendors/chart.js/Chart.min.js"></script>-->
     <!-- End plugin js for this page -->
     <!-- inject:js -->
    <script src="http://www.bootstrapdash.com/demo/purple-admin-free/assets/js/off-canvas.js"></script>
